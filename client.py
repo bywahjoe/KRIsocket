@@ -11,10 +11,7 @@ print(f"    IP Address   	   : {ip_address}")
 client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((JARINGAN))
 pesan='1st check'
-"""msg=client.recv(1024)
-terima=msg.decode(ENCODING)
-print("")
-"""
+
 def get_manual(mypesan):
 	paramku=[]
 	seplit=mypesan.split(',')
@@ -59,12 +56,3 @@ while True:
 			stop()
 		else:
 			print(f"S| {terima} ")
-	#client.send(pesan.encode(ENCODING))
-	#time.sleep(3)
-	"""
-	"""
-	"""print("ENTER PESAN:")
-	x=input()
-	client.send(x.encode(ENCODING))"""
-	#print("END PROGRAM")"""
-	
