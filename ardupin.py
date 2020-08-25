@@ -1,0 +1,27 @@
+#d=digital
+#a=analog
+#o=output
+#i=input
+#p=pwm
+
+#MOTOR
+
+RPWM_DRIBLE_PIN='d:7:p' # digital pin 7 as PWM
+LPWM_DRIBLE_PIN='d:6:p'
+EON1_DRIBLE_PIN='d:29:o'
+EON2_DRIBLE_PIN='d:27:o'
+
+RPWM_KANAN_PIN='d:9:p'
+LPWM_KANAN_PIN='d:8:p'
+EON1_KANAN_PIN='d:33:o'
+EON2_KANAN_PIN='d:31:o'
+
+RPWM_BELAKANG_PIN='d:5:p'
+LPWM_BELAKANG_PIN='d:4:p'
+EON1_BELAKANG_PIN='d:25:o'
+EON2_BELAKANG_PIN='d:23:o'
+
+RPWM_KIRI_PIN='d:11:p'
+LPWM_KIRI_PIN='d:10:p'
+EON1_KIRI_PIN='d:37:o'
+EON2_KIRI_PIN='d:35:o'
