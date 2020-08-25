@@ -1,5 +1,6 @@
 # KRIsocket
 simple socket bywahjoe
+
 Arduino must connect, if not connected change *client.py* to **c2.py**
 
 1. **SET** the configku.py
