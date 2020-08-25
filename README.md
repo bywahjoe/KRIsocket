@@ -1,2 +1,2 @@
 # KRIsocket
-simple sockey bywahjoe
+simple socket bywahjoe
