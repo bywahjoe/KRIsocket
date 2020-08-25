@@ -114,18 +114,16 @@ def send_manual(btn_id):
 	#M,DELAY,LEFT,RIGHT
 	if btn_id==1:
 		isi_pesan=isi_pesan+str(param_up)+','+str(param_up)
-		print(isi_pesan)
 	elif btn_id==2:
 		isi_pesan=isi_pesan+str(param_down)+','+str(param_down)
-		print(isi_pesan)
 	elif btn_id==3:
 		#kiri
 		isi_pesan=isi_pesan+param_kiri
-		print(isi_pesan)
 	elif btn_id==4:
 		#kanan
 		isi_pesan=isi_pesan+param_kanan
-		print(isi_pesan)
+	isi_pesan=isi_pesan+','
+	print(isi_pesan)
 	multi_send(isi_pesan)
 def start_server():
 	server.listen()
