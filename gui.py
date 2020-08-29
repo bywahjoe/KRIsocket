@@ -7,12 +7,18 @@ import os
 import tkinter.scrolledtext as listt
 #import tkinter as tk
 from tkinter import *
+from tkinter import messagebox as viewerror
 
 from inputimeout import inputimeout, TimeoutOccurred
 from configku import *
 
 window=Tk()
 window.title('Simple Server - Wahjoe Labs')
+#window.attributes('-fullscreen', True) 
+
+window.configure(bg='#10171f')
+window.geometry('1366x720')
+MENU_HEADER='white'
 getid=IntVar()
 getid.set(3)
 status_server=StringVar()
@@ -33,7 +39,8 @@ ip_client1=StringVar()
 ip_client1.set('0.0.0.0')
 ip_client2=StringVar()
 ip_client2.set('0.0.0.0')
-
+ip_client3=StringVar()
+ip_client3.set('0.0.0.0')
 
 cname = socket.gethostname()
 ip_address=socket.gethostbyname(socket.gethostname())
@@ -45,15 +52,21 @@ print(f"+Computer:{cname}")
 print(f"+IP      :{ip_address}")
 print("+HOST    -    PORT")
 print(JARINGAN)
-#window.geometry('450x500')
-startclient=10
 
+startclient=10
+def fail(pesan_error):
+	viewerror.showwarning(title='!ERROR', message=pesan_error)
 try:
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.bind(JARINGAN)
 	print("**Starting Server")
 except socket.error as e:
-	print(f"ERROR {e}")
+	#print(f"ERROR {e}")
+	fail(e)
+	#error_box()
+	
+#def error_box():
+#	messagebox.showerror("YA")
 def multi_client(conn,address,myid):
 	conn_client.append(conn)
 	ip_client.append(address)
@@ -126,7 +139,7 @@ def send_manual(btn_id):
 	print(isi_pesan)
 	multi_send(isi_pesan)
 def start_server():
-	server.listen()
+
 	print("LISTENING CLIENT...")
 	DEVICE=0	
 	while True:
@@ -140,9 +153,16 @@ def start_server():
 			ip_client2.set(ip_client[1])
 			break
 def listen_client():
-	status_server.set('OK')
-	thread2 = threading.Thread(target=start_server,daemon=True)
-	thread2.start()
+	bs1["state"] = "disable"
+	bs1["bg"] = "black"
+	try:
+		server.listen()
+		status_server.set('OK')
+		tp2['fg']='green'
+		thread2 = threading.Thread(target=start_server,daemon=True)
+		thread2.start()
+	except socket.error as e:
+		fail(e)		
 def get_radio():
 
 	x=getid.get()
@@ -153,66 +173,80 @@ def open_server():
 def get_manual():
 	print('ok')
 #server start
-ts1=Label(window,text='SERVER',font='Helvetica 10 bold',highlightcolor='red')
-ts1.grid(row=0,column=0,sticky='w')
+ts1=Label(window,text='SERVER',font='Helvetica 10 bold',bg='#f7bb00')
+#ts1.config(bg='red')
+#ts1.grid.SetBackgroundColour(red)
+ts1.grid(row=0,column=0,sticky='EW',columnspan=2)
+tsy=Label(window,text='IP SERVER : ',bg='#10171f',fg='white',font='Courier 11')
+tsy.grid(row=1,column=0,sticky='E',padx=7)
+tsy=Label(window,text='PORT : ',bg='#10171f',fg='white',font='Courier 11')
+tsy.grid(row=2,column=0,sticky='E',padx=7)
+ts2=Label(window,text=ip_address,bg='#10171f',font='Courier 11 bold',fg='white')
+ts2.grid(row=1,column=1,sticky='E')
+ts2=Label(window,text=PORT,bg='#10171f',font='Courier 11 bold',fg='white')
+ts2.grid(row=2,column=1,pady=20,sticky='W')
 
-ts2=Label(window,text=ip_address)
-ts2.grid(row=0,column=1)
-ts2=Label(window,text=PORT)
-ts2.grid(row=0,column=2)
+frm=Frame(window,width='650',height='300',bg='green',bd=5,highlightbackground='white',highlightthickness=3)
+frm.grid(row=0,column=2,rowspan=10,padx=5,pady=3)
 
-bs1=Button(window,text='Start Server',command=listen_client,bg='green',fg='white')
-bs1.grid(row=0,column=3)
-bs2=Button(window,text='Close Server',command=window.quit,bg='red',fg='white')
-bs2.grid(row=0,column=4)
+bs1=Button(window,text='Start Server',command=listen_client,bg='green',fg='white',width=10,height=3,font='Arial 11',activebackground='orange')
+bs1.grid(row=0,column=8,padx=6)
+bs2=Button(window,text='Close Server',command=window.quit,bg='red',fg='white',width=10,height=3,font='Arial 11')
+bs2.grid(row=0,column=10)
 
 
 #status server
-tp1=Label(window,text='Status:',)
-tp1.grid(row=1,column=3)
-tp2=Label(window,textvariable=status_server)
-tp2.grid(row=1,column=4)
+
+tp2=Label(window,textvariable=status_server,bg='#10171f',fg='red',font='Courier 15')
+tp2.grid(row=0,column=3)
 #send to
-tr2=Label(window,text='SEND TO',font='Helvetica 10 bold')
-tr2.grid(row=3,column=0,sticky='w')
-rb1=Radiobutton(window,text='ALL',variable=getid,value=3)
-rb2=Radiobutton(window,text='CLIENT A',variable=getid,value=0)
-rb3=Radiobutton(window,text='CLIENT B',variable=getid,value=1)
-rb1.grid(row=3,column=1,sticky='w')
-rb2.grid(row=4,column=1)
-rb3.grid(row=5,column=1)
+tr2=Label(window,text='SEND TO',font='Helvetica 10 bold',bg='#f7bb00')
+tr2.grid(row=4,column=0,sticky='EW',columnspan=2)
+rb1=Radiobutton(window,text='ALL',variable=getid,value=3,bg='black',fg='white',indicatoron=0,selectcolor='orange',font='Courier 15 italic')
+rb2=Radiobutton(window,text='STRIKER A',variable=getid,value=0,bg='black',fg='white',indicatoron=0,selectcolor='orange',font='Courier 15 italic')
+rb3=Radiobutton(window,text='STRIKER B',variable=getid,value=1,bg='black',fg='white',indicatoron=0,selectcolor='orange',font='Courier 15 italic')
+rb4=Radiobutton(window,text='KIPER',variable=getid,value=3,bg='black',fg='white',indicatoron=0,selectcolor='orange',font='Courier 15 italic')
+rb1.grid(row=5,column=0,sticky='EW',columnspan=2)
+rb2.grid(row=6,column=0,sticky='EW',columnspan=2)
+rb3.grid(row=7,column=0,sticky='EW',columnspan=2)
+rb4.grid(row=8,column=0,sticky='EW',columnspan=2)
+
+trc2=Label(window,text='IP CLIENT',font='Helvetica 10 bold',bg='#f7bb00')
+trc2.grid(row=4,column=3,sticky='EW',columnspan=2)
 #IP CLIENT CHECK
-txp1=Label(window,textvariable=ip_client1)
-txp1.grid(row=4,column=2)
-txp2=Label(window,textvariable=ip_client2)
-txp2.grid(row=5,column=2)
+txp1=Label(window,textvariable=ip_client1,width=22)
+txp1.grid(row=6,column=3)
+txp2=Label(window,textvariable=ip_client2,width=22)
+txp2.grid(row=7,column=3)
+txp2=Label(window,textvariable=ip_client3,width=22)
+txp2.grid(row=8,column=3)
 print(getid.get())
 
 
 #command button
 cpr1=Label(window,text='#COMMAND',font='Helvetica 10 bold')
-cpr1.grid(row=6,column=0)
+cpr1.grid(row=10,column=0)
 cpr2=Label(window,text='MANUAL',font='Helvetica 10 bold')
-cpr2.grid(row=6,column=2,sticky='w')
+cpr2.grid(row=10,column=2,sticky='w')
 #
-b1=Button(window,text='AUTO',command=lambda: multi_send('C1'),width=7)
-b1.grid(row=7,column=0,sticky='w')
+b1=Button(window,text='AUTO',command=lambda: multi_send('C1'),width=9)
+b1.grid(row=15,column=0,sticky='w')
 b2=Button(window,text='STOP',command=lambda: multi_send('C2'),width=7)
-b2.grid(row=7,column=1,sticky='w')
+b2.grid(row=15,column=1,sticky='w')
 be2=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=7)
 be2.grid(row=8,column=0,sticky='w')
 b3=Label(window,text='MANUAL',font='Helvetica 10 bold')
 b3.grid(row=6,column=2,sticky='w')
 #
 be1=Button(window,text='UP',width=7,command=lambda: send_manual(1))
-be1.grid(row=7,column=3)
+be1.grid(row=7,column=13)
 be2=Button(window,text='DOWN',width=7,command=lambda: send_manual(2))
-be2.grid(row=9,column=3)
+be2.grid(row=9,column=13)
 
 be3=Button(window,text='LEFT',width=7,command=lambda: send_manual(3))
-be3.grid(row=8,column=2,sticky='w')
+be3.grid(row=8,column=12,sticky='w')
 be4=Button(window,text='RIGHT',width=7,command=lambda: send_manual(4))
-be4.grid(row=8,column=4)
+be4.grid(row=8,column=14)
 
 #
 delayp=Spinbox(window,from_=1,to=5,width=5)

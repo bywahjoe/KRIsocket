@@ -56,8 +56,8 @@ while True:
 			oeee=''
 			#setMotor(150,212,232)
 		elif terima=='stop':
-			#oeee=''
-			stop()
+			oeee=''
+			#stop()
 		else:
 			print(f"S| {terima} ")
 

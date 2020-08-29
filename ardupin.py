@@ -3,10 +3,11 @@
 #o=output
 #i=input
 #p=pwm
+IRPIN='d:8:i'
 
 #MOTOR
 
-RPWM_DRIBLE_PIN='d:7:p' # digital pin 7 as PWM
+RPWM_DRIBLE_PIN='d:7:i' # digital pin 7 as PWM
 LPWM_DRIBLE_PIN='d:6:p'
 EON1_DRIBLE_PIN='d:29:o'
 EON2_DRIBLE_PIN='d:27:o'
