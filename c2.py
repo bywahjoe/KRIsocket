@@ -64,7 +64,7 @@ while True:
 	if terima:
 		if terima=='auto':
 			terima=otomatis()
-		if terima.startswith('M'):
+		if terima.startswith('MNL'):
 			terima=terima.upper()
 			print(terima)
 			get_manual(terima)
@@ -73,9 +73,6 @@ while True:
 		elif terima=='stops':
 			oeee=''
 			#stop()
-		elif terima=='auto':
-			dummy=''
-			
 		elif terima=='selenoid':
 			ok=''
 		else:

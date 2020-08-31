@@ -110,7 +110,7 @@ def multi_client(conn,address,myid):
 			list_area.insert('1.0',hola+'\n')
 			list_area.configure(state='disabled')
 def multi_send(pesan):
-	if pesan.startswith('M'):
+	if pesan.startswith('MNL'):
 		replace_pesan=pesan
 	else:
 		replace_pesan=text_command.get(pesan.upper())
@@ -141,7 +141,7 @@ def send_manual(btn_id):
 	param_blkg=abs(int(def_pwmblkg.get()))
 	param_blkgMIN=-1*param_blkg
 
-	isi_pesan='M,'+str(param_delay)+','
+	isi_pesan='MNL,'+str(param_delay)+','
 	print(f'UP:{param_up}')
 	print(f'DOWN:{param_down}')
 	print(f'KIRI:{param_kiri}')
