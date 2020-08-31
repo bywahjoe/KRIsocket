@@ -3,7 +3,7 @@ import pyfirmata
 from ardupin import*
 
 
-board = pyfirmata.ArduinoMega('COM3')
+board = pyfirmata.ArduinoMega(COM_PORT)
 #board = pyfirmata.Arduino('COM3')
 it=pyfirmata.util.Iterator(board)
 it.start()
@@ -29,7 +29,11 @@ print(EON1_KIRI_PIN)
 print(EON2_KIRI_PIN)
 
 """
-IRGET=board.get_pin(IRPIN)
+#IR_READ=board.get_pin('d:43:i')
+
+print(IR_PIN)
+time.sleep(3)
+IR_READ=board.get_pin('d:43:i')
 RPWM_DRIBLE=board.get_pin(RPWM_DRIBLE_PIN)
 LPWM_DRIBLE=board.get_pin(LPWM_DRIBLE_PIN)
 EON1_DRIBLE=board.get_pin(EON1_DRIBLE_PIN)
@@ -123,19 +127,25 @@ def belakang(inputspeed=150):
 		RPWM_BELAKANG.write(speed)
 	print(speed)
 def stop():
-	inputspeed=0
-	kiri(inputspeed)
-	belakang(inputspeed)
-	kanan(inputspeed)
+	setMotor()
 def setMotor(motor_kiri=0,motor_kanan=0,motor_belakang=0):
 	kiri(motor_kiri)
 	belakang(motor_belakang)
 	kanan(motor_kanan)
 def tendang():
 	drible(-255)
-	time.sleep(3)
+	time.sleep(2)
 	drible()
-drible()
+def getIR():
+	if IR_READ.read():
+		return False
+	else:
+		return True
+
+"""while True:
+	
+	IR_READ.enable_reporting()
+	print(IR_READ.read())"""
 #time.sleep(4)
 #stop()
 """belakang()

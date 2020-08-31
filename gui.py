@@ -7,9 +7,9 @@ import queue
 import os
 import tkinter.scrolledtext as listt
 #import tkinter as tk
+from perintah import *
 from tkinter import *
 from tkinter import messagebox as viewerror
-
 from inputimeout import inputimeout, TimeoutOccurred
 from configku import *
 
@@ -35,7 +35,7 @@ def_pwmkiri.set('-45,45')
 def_pwmkanan=StringVar()
 def_pwmkanan.set('45,-45')
 def_pwmblkg=StringVar()
-def_pwmblkg.set('45')
+def_pwmblkg.set('20')
 
 pesan='You Are Connected as CLIENT: '
 conn_client=[]
@@ -49,7 +49,7 @@ ip_client3.set('0.0.0.0')
 
 cname = socket.gethostname()
 ip_address=socket.gethostbyname(socket.gethostname())
-text_command={'C1':'auto','C2':'stop','C3':'wahyu'}	
+#text_command={'C1':'auto','C2':'stop','C3':'wahyu','CTST4':'selenoid'}	
 pesan='You Are Connected as CLIENT: '
 ocl=[]
 print(f"MAX DEVICE ALLOW : {TOTAL_CLIENT}")
@@ -68,6 +68,15 @@ def getTime():
 	waktu=str(now.hour)+':'+str(now.minute)+':'+str(now.second)+'-'
 	print(waktu)
 	return waktu
+def ping_client():
+	isi_pesan='PING'
+	try:
+		for toall in conn_client:
+			toall.send(bytes(isi_pesan,ENCODING))
+		notice('ALL CLIENT CONNECTED')
+	except socket.error as e:
+		text_error=str(e)+'\n ***CONECTION LOSS '
+		fail(text_error)
 try:
 	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	server.bind(JARINGAN)
@@ -101,14 +110,15 @@ def multi_client(conn,address,myid):
 			list_area.insert('1.0',hola+'\n')
 			list_area.configure(state='disabled')
 def multi_send(pesan):
-	if pesan.startswith('C'):
-		replace_pesan=text_command.get(pesan.upper())
-	else:
+	if pesan.startswith('M'):
 		replace_pesan=pesan
+	else:
+		replace_pesan=text_command.get(pesan.upper())
+	
 
 	index_client=getid.get()
 	print(replace_pesan)
-	print(index_client)
+	#print(index_client)
 
 	list_area.configure(state='normal')
 	if index_client==3:
@@ -128,26 +138,30 @@ def send_manual(btn_id):
 	param_kiri=def_pwmkiri.get()
 	param_kanan=def_pwmkanan.get()
 	param_delay=delayp.get()
+	param_blkg=abs(int(def_pwmblkg.get()))
+	param_blkgMIN=-1*param_blkg
 
 	isi_pesan='M,'+str(param_delay)+','
 	print(f'UP:{param_up}')
 	print(f'DOWN:{param_down}')
 	print(f'KIRI:{param_kiri}')
 	print(f'KANAN:{param_kanan}')
+	print(f'BLKGKIRI:{param_blkg}')
+	print(f'BLKGMIN:{param_blkgMIN}')
 	print(f'DELAY:{param_delay}')
 	print('__')
 	
 	#M,DELAY,LEFT,RIGHT
 	if btn_id==1:
-		isi_pesan=isi_pesan+str(param_up)+','+str(param_up)
+		isi_pesan=isi_pesan+str(param_up)+','+str(param_up)+',0'
 	elif btn_id==2:
-		isi_pesan=isi_pesan+str(param_down)+','+str(param_down)
+		isi_pesan=isi_pesan+str(param_down)+','+str(param_down)+',0'
 	elif btn_id==3:
 		#kiri
-		isi_pesan=isi_pesan+param_kiri
+		isi_pesan=isi_pesan+param_kiri+','+str(param_blkg)
 	elif btn_id==4:
 		#kanan
-		isi_pesan=isi_pesan+param_kanan
+		isi_pesan=isi_pesan+param_kanan+','+str(param_blkgMIN)
 	isi_pesan=isi_pesan+','
 	print(isi_pesan)
 	multi_send(isi_pesan)
@@ -176,16 +190,8 @@ def listen_client():
 		thread2 = threading.Thread(target=start_server,daemon=True)
 		thread2.start()
 	except socket.error as e:
-		fail(e)		
-def get_radio():
+		fail(e)	
 
-	x=getid.get()
-	print(x)
-
-def open_server():
-	os.system('python server.py')
-def get_manual():
-	print('ok')
 #server start
 ts1=Label(window,text='SERVER',font='Helvetica 10 bold',bg='#f7bb00')
 #ts1.config(bg='red')
@@ -307,16 +313,16 @@ b15.grid(row=3,column=12,sticky='EW',padx=3,pady=3)
 
 trpn2=Label(window,text='TEST STATION',font='Helvetica 10 bold',bg='#f7bb00')
 trpn2.grid(row=4,column=7,sticky='EW',columnspan=6,pady=7)
-bxp1=Button(window,text='PING',command=lambda: multi_send('C1'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp2=Button(window,text='GET_IR',command=lambda: multi_send('C2'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp3=Button(window,text='MOTOR',command=lambda: multi_send('C3'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp4=Button(window,text='SELENOID',command=lambda: multi_send('C3'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp5=Button(window,text='FREE KICK',command=lambda: multi_send('C3'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp6=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp7=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp8=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp9=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp10=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp1=Button(window,text='PING',command=ping_client,width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp2=Button(window,text='GET_IR',command=lambda: multi_send('TST2'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp3=Button(window,text='MOTOR',command=lambda: multi_send('TST3'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp4=Button(window,text='SELENOID',command=lambda: multi_send('TST4'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp5=Button(window,text='FREE KICK',command=lambda: multi_send('TST5'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp6=Button(window,text='TESTRECV',command=lambda: multi_send('TST6'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp7=Button(window,text='TESTRECV',command=lambda: multi_send('TST7'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp8=Button(window,text='TESTRECV',command=lambda: multi_send('TST8'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp9=Button(window,text='TESTRECV',command=lambda: multi_send('TST9'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp10=Button(window,text='TESTRECV',command=lambda: multi_send('TST10'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
 
 bxp1.grid(row=5,column=8,sticky='EW',padx=3,pady=3)
 bxp2.grid(row=5,column=9,sticky='EW',padx=3,pady=3)
@@ -351,11 +357,11 @@ be4.grid(row=13,column=11,sticky='W')
 #
 delayp=Spinbox(window,from_=1,to=5,width=8,font='Arial 13 bold')
 delayp.grid(row=13,column=10)
-pwm_kr=Entry(window,bd=4,width=11,font='Arial 13 bold',textvariable=def_pwmkiri,justify='center')
+pwm_kr=Entry(window,bd=4,width=9,font='Arial 13 bold',textvariable=def_pwmkiri,justify='center')
 pwm_kr.grid(row=12,column=9,pady=7)
-pwm_kn=Entry(window,bd=4,width=11,font='Arial 13 bold',textvariable=def_pwmkanan,justify='center')
+pwm_kn=Entry(window,bd=4,width=9,font='Arial 13 bold',textvariable=def_pwmkanan,justify='center')
 pwm_kn.grid(row=12,column=11,pady=7)
-pwm_up=Entry(window,bd=4,width=11,font='Arial 13 bold',textvariable=def_pwmup,justify='center')
+pwm_up=Entry(window,bd=4,width=9,font='Arial 13 bold',textvariable=def_pwmup,justify='center')
 pwm_up.grid(row=11,column=10,pady=7)
 
 ##LIST TERMINAL
