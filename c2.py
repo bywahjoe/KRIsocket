@@ -17,6 +17,7 @@ print("")
 """
 
 def kirim(isi_pesan):
+	isi_pesan=str(isi_pesan)
 	client.send(isi_pesan.encode(ENCODING))
 def get_manual(mypesan):
 	paramku=[]

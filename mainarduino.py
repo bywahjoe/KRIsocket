@@ -33,7 +33,7 @@ print(EON2_KIRI_PIN)
 
 print(IR_PIN)
 time.sleep(3)
-IR_READ=board.get_pin('d:43:i')
+IR_READ=board.get_pin(IR_PIN)
 RPWM_DRIBLE=board.get_pin(RPWM_DRIBLE_PIN)
 LPWM_DRIBLE=board.get_pin(LPWM_DRIBLE_PIN)
 EON1_DRIBLE=board.get_pin(EON1_DRIBLE_PIN)

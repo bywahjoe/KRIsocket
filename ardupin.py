@@ -4,7 +4,7 @@
 #i=input
 #p=pwm
 COM_PORT='COM3'
-IR_PIN='d'
+IR_PIN='d:3:i'
 
 #MOTOR
 

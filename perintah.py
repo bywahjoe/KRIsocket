@@ -19,7 +19,7 @@ text_command={
 'TST3':'NULL',
 'TST4':'selenoid',
 'TST5':'NULL',
-'TST6':'NULL',
+'TST6':'wahyu',
 'TST7':'NULL',
 'TST8':'NULL',
 'TST9':'NULL',
