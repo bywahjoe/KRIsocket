@@ -86,6 +86,9 @@ while True:
 				stop()
 			elif terima=='selenoid':
 				tendang()
+			elif terima=='kompas':
+				kirim(getKompas())
+				print(getKompas())
 			else:
 				print(f"S| {terima} ")
 	except BlockingIOError:

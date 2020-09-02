@@ -145,15 +145,15 @@ def getKompas(index=0):
 		file=open(FILE_KOMPAS,READ_FILE)
 		dataAsli=file.readline()
 		file.close()
-		pecahData=dataAsli.split(',',2)
+		pecahData=dataAsli.split(',')
 		print('FILE ASLI:',dataAsli)
 		print('FILE SPLIT:',pecahData)
-		return int(pecahData[index])
+		return int(float(pecahData[index]))
 	except ValueError:
-		return int(pecahData[0])
+		return int(float(pecahData[index]))
 	except IndexError:
-		return int(pecahData[0])
-	except
+		return int(float(pecahData[index]))
+	except:
 		pass
 print(getKompas())
 """while True:

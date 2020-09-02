@@ -315,7 +315,7 @@ bxp1=Button(window,text='PING',command=ping_client,width=10,height=2,bg='green',
 bxp2=Button(window,text='GET_IR',command=lambda: multi_send('TST2'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
 bxp3=Button(window,text='MOTOR',command=lambda: multi_send('TST3'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
 bxp4=Button(window,text='SELENOID',command=lambda: multi_send('TST4'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp5=Button(window,text='FREE KICK',command=lambda: multi_send('TST5'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp5=Button(window,text='KOMPAS',command=lambda: multi_send('TST5'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
 bxp6=Button(window,text='TESTRECV',command=lambda: multi_send('TST6'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
 bxp7=Button(window,text='TESTRECV',command=lambda: multi_send('TST7'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
 bxp8=Button(window,text='TESTRECV',command=lambda: multi_send('TST8'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
