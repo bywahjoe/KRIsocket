@@ -1,7 +1,7 @@
 import time
 import pyfirmata
-from ardupin import*
-
+from ardupin import *
+from configku import *
 
 board = pyfirmata.ArduinoMega(COM_PORT)
 #board = pyfirmata.Arduino('COM3')
@@ -31,8 +31,6 @@ print(EON2_KIRI_PIN)
 """
 #IR_READ=board.get_pin('d:43:i')
 
-print(IR_PIN)
-time.sleep(3)
 IR_READ=board.get_pin(IR_PIN)
 RPWM_DRIBLE=board.get_pin(RPWM_DRIBLE_PIN)
 LPWM_DRIBLE=board.get_pin(LPWM_DRIBLE_PIN)
@@ -141,7 +139,23 @@ def getIR():
 		return False
 	else:
 		return True
-
+def getKompas(index=0):
+	#HEADING1,HEADING2,TIMELOG
+	try:
+		file=open(FILE_KOMPAS,READ_FILE)
+		dataAsli=file.readline()
+		file.close()
+		pecahData=dataAsli.split(',',2)
+		print('FILE ASLI:',dataAsli)
+		print('FILE SPLIT:',pecahData)
+		return int(pecahData[index])
+	except ValueError:
+		return int(pecahData[0])
+	except IndexError:
+		return int(pecahData[0])
+	except
+		pass
+print(getKompas())
 """while True:
 	
 	IR_READ.enable_reporting()

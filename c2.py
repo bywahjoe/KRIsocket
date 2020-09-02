@@ -11,6 +11,8 @@ print(f"    IP Address   	   : {ip_address}")
 client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((JARINGAN))
 pesan='1st check'
+#client.settimeout(0.1)
+client.setblocking(0)
 """msg=client.recv(1024)
 terima=msg.decode(ENCODING)
 print("")
@@ -51,32 +53,36 @@ def otomatis():
 	play=True
 	while play:
 		##CODE
-
-
-		new_message=client.recv(SIZE).decode(ENCODING)
-		if new_message:
-			return new_message
-
+			
+		try:
+			new_message=client.recv(SIZE).decode(ENCODING)
+			if new_message:
+				return new_message
+		except BlockingIOError:
+			pass
+		#print('continue')
 	print('stopwhile')
 while True:
 
-	terima=client.recv(SIZE).decode(ENCODING)
-	
-	if terima:
-		if terima=='auto':
-			terima=otomatis()
-		if terima.startswith('MNL'):
-			terima=terima.upper()
-			print(terima)
-			get_manual(terima)
-		elif terima=='wahyu':
-			kirim('Masuk')
-		elif terima=='stops':
-			oeee=''
-			#stop()
-		elif terima=='selenoid':
-			ok=''
-		else:
-			print(f"S| {terima} ")
+	try:
+		terima=client.recv(SIZE).decode(ENCODING)
+		if terima:
+			if terima=='auto':
+				terima=otomatis()
+			if terima.startswith('MNL'):
+				terima=terima.upper()
+				print(terima)
+				get_manual(terima)
+			elif terima=='wahyu':
+				kirim('Masuk')
+			elif terima=='stops':
+				oeee=''
+				#stop()
+			elif terima=='selenoid':
+				ok=''
+			else:
+				print(f"S| {terima} ")
+	except BlockingIOError:
+		pass
 
 

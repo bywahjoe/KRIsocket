@@ -1,8 +1,12 @@
-def kur():
-	print('ok')
-listt ={'HE':'wahjoe'}
-list2 ={'HE':['wh',kur]}
+import serial
+import time
+import datetime
+serialcon=serial.Serial('COM3',9600)
 
-print(list2.items())
-print(list2.get('HE'))
-#list2['HE'][1]()
+while True:
+	ok=serialcon.readline().decode('ASCII')
+	print(ok)
+	now=datetime.datetime.now()
+	waktu=str(now.hour)+':'+str(now.minute)+':'+str(now.second)+'-'
+	print(waktu)
+	time.sleep(2)

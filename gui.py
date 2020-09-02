@@ -176,8 +176,11 @@ def start_server():
 		thread = threading.Thread(target=multi_client, args=(conn, address,DEVICE),daemon=True)
 		thread.start()
 		if DEVICE>=TOTAL_CLIENT:
-			ip_client1.set(ip_client[0])
-			ip_client2.set(ip_client[1])
+			try:
+				ip_client1.set(ip_client[0])
+				ip_client2.set(ip_client[1])
+			except IndexError:
+				dontstop=''
 			break
 def listen_client():
 	bs1["state"] = "disable"
@@ -240,11 +243,6 @@ st2=Radiobutton(window,text='ATTACK',variable=strgy,width=5,height=2,value=2,bg=
 st3=Radiobutton(window,text='DEFEND',variable=strgy,width=5,height=2,value=3,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st4=Radiobutton(window,text='STRIKER 1',variable=strgy,width=5,height=2,value=4,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st5=Radiobutton(window,text='MODECEPAT',variable=strgy,width=5,height=2,value=5,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
-st1.grid(row=12,column=2,sticky='EW',pady=4,padx=3)
-st2.grid(row=12,column=3,sticky='EW',pady=4,padx=3)
-st3.grid(row=12,column=4,sticky='EW',pady=4,padx=3)
-st4.grid(row=12,column=5,sticky='EW',pady=4,padx=3)
-st5.grid(row=12,column=6,sticky='EW',pady=4,padx=3)
 st6=Radiobutton(window,text='TABRAK',variable=strgy,width=5,height=2,value=6,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st7=Radiobutton(window,text='FULLPOWER',variable=strgy,width=5,height=2,value=7,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st8=Radiobutton(window,text='UMPAN',variable=strgy,width=5,height=2,value=8,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
