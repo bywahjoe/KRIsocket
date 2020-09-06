@@ -1,5 +1,6 @@
 import time
 import pyfirmata
+import os
 from ardupin import *
 from configku import *
 
@@ -139,27 +140,33 @@ def getIR():
 		return False
 	else:
 		return True
+def fileKompasNotEmpty():
+	get_status=os.stat(FILE_KOMPAS).st_size>0
+	return get_status
 def getKompas(index=0):
 	#HEADING1,HEADING2,TIMELOG
-	try:
-		file=open(FILE_KOMPAS,READ_FILE)
-		dataAsli=file.readline()
-		file.close()
-		pecahData=dataAsli.split(',')
-		print('FILE ASLI:',dataAsli)
-		print('FILE SPLIT:',pecahData)
-		return int(float(pecahData[index]))
-	except ValueError:
-		return int(float(pecahData[index]))
-	except IndexError:
-		return int(float(pecahData[index]))
-	except:
-		pass
+	if(fileKompasNotEmpty()):
+		try:
+			file=open(FILE_KOMPAS,READ_FILE)
+			dataAsli=file.readline()
+			file.close()
+			pecahData=dataAsli.split(',')
+			print('FILE ASLI:',dataAsli)
+			print('FILE SPLIT:',pecahData)
+			return int(float(pecahData[index]))
+		except ValueError:
+			return int(float(pecahData[index]))
+		except IndexError:
+			return int(float(pecahData[index]))
+		except:
+			pass
+	else:
+		return BASE_MUSUH
 print(getKompas())
+drible()
+
 """while True:
-	
-	IR_READ.enable_reporting()
-	print(IR_READ.read())"""
+	print(getIR())"""
 #time.sleep(4)
 #stop()
 """belakang()

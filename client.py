@@ -6,6 +6,7 @@ import threading
 from configku import *
 from mainarduino import *
 
+PIDX=0
 print("CLIENT VIEW **")
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
@@ -51,7 +52,10 @@ def runArduinoCompass():
 
 	#excecute='python serialkompas.py'
 	#runCMD=subprocess.Popen(['python','serialkompas.py'], shell=True)
+	
 	os.system('start /wait cmd /k python serialkompas.py')
+	PIDX=os.getpid()
+	print(PIDX)
 threadx = threading.Thread(target=runArduinoCompass,daemon=True)
 threadx.start()
 def otomatis():
@@ -93,3 +97,5 @@ while True:
 				print(f"S| {terima} ")
 	except BlockingIOError:
 		pass
+	except ConnectionResetError:
+		os.system('taskkill /IM "python.exe" /F')

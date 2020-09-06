@@ -1,12 +1,4 @@
-import serial
-import time
-import datetime
-serialcon=serial.Serial('COM3',9600)
+import os
 
-while True:
-	ok=serialcon.readline().decode('ASCII')
-	print(ok)
-	now=datetime.datetime.now()
-	waktu=str(now.hour)+':'+str(now.minute)+':'+str(now.second)+'-'
-	print(waktu)
-	time.sleep(2)
+ok=os.stat('kompaslog.txt').st_size>0
+print(ok)
