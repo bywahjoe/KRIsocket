@@ -1,5 +1,4 @@
 import socket
-import subprocess
 import time
 import os
 import threading
@@ -18,6 +17,9 @@ client.connect((JARINGAN))
 client.setblocking(0)
 pesan='1st check'
 
+def testThreadMotor(delay,kiri,kanan,belakang=0):
+	myThread=threading.Thread(target=ex_manual,args=(delay,kiri,kanan,belakang),daemon=True)
+	myThread.start()
 def kirim(isi_pesan):
 	isi_pesan=str(isi_pesan)
 	client.send(isi_pesan.encode(ENCODING))
@@ -47,7 +49,6 @@ def ex_manual(delay,kiri,kanan,belakang=0):
 	setMotor(kiri,kanan,belakang)
 	time.sleep(delay)
 	stop()
-
 def runArduinoCompass():
 
 	#excecute='python serialkompas.py'
@@ -56,8 +57,8 @@ def runArduinoCompass():
 	os.system('start /wait cmd /k python serialkompas.py')
 	PIDX=os.getpid()
 	print(PIDX)
-threadx = threading.Thread(target=runArduinoCompass,daemon=True)
-threadx.start()
+"""threadx = threading.Thread(target=runArduinoCompass,daemon=True)
+threadx.start()"""
 def otomatis():
 	print('startwhile')
 	play=True
@@ -85,9 +86,14 @@ while True:
 				get_manual(terima)
 			elif terima=='wahyu':
 				kirim('Masuk')
+			elif terima=='testmotor':
+				testThreadMotor(3,150,150,150)
+				testThreadMotor(3,-150,-150,-150)
 			elif terima=='stops':
 				#oeee=''
 				stop()
+			elif terima=='getir':
+				kirim(getIR())
 			elif terima=='selenoid':
 				tendang()
 			elif terima=='kompas':
@@ -99,3 +105,6 @@ while True:
 		pass
 	except ConnectionResetError:
 		os.system('taskkill /IM "python.exe" /F')
+	except Exception as e:
+		print(e)
+		pass

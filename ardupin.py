@@ -3,11 +3,12 @@
 #o=output
 #i=input
 #p=pwm
-COM_PORT='COM3'
+
+#RELAY/PENENDANG
+PENENDANG_PIN='d:40:o'
+#IR
 IR_PIN='d:3:i'
-
 #MOTOR
-
 RPWM_DRIBLE_PIN='d:7:p' # digital pin 7 as PWM
 LPWM_DRIBLE_PIN='d:6:p'
 EON1_DRIBLE_PIN='d:29:o'

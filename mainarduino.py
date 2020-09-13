@@ -1,38 +1,19 @@
 import time
 import pyfirmata
 import os
+import threading
 from ardupin import *
 from configku import *
 
-board = pyfirmata.ArduinoMega(COM_PORT)
+board = pyfirmata.ArduinoMega(ARDUINO_COM_PORT)
 #board = pyfirmata.Arduino('COM3')
 it=pyfirmata.util.Iterator(board)
 it.start()
-"""
-print(RPWM_DRIBLE_PIN) 
-print(LPWM_DRIBLE_PIN)
-print(EON1_DRIBLE_PIN)
-print(EON2_DRIBLE_PIN)
-
-print(RPWM_KANAN_PIN)
-print(LPWM_KANAN_PIN)
-print(EON1_KANAN_PIN)
-print(EON2_KANAN_PIN)
-
-print(RPWM_BELAKANG_PIN)
-print(LPWM_BELAKANG_PIN)
-print(EON1_BELAKANG_PIN)
-print(EON2_BELAKANG_PIN)
-
-print(RPWM_KIRI_PIN)
-print(LPWM_KIRI_PIN)
-print(EON1_KIRI_PIN)
-print(EON2_KIRI_PIN)
-
-"""
-#IR_READ=board.get_pin('d:43:i')
-
+#RELAY/PENENDANG
+PENENDANG=board.get_pin(PENENDANG_PIN)
+#INFRARED
 IR_READ=board.get_pin(IR_PIN)
+#MOTOR
 RPWM_DRIBLE=board.get_pin(RPWM_DRIBLE_PIN)
 LPWM_DRIBLE=board.get_pin(LPWM_DRIBLE_PIN)
 EON1_DRIBLE=board.get_pin(EON1_DRIBLE_PIN)
@@ -52,7 +33,9 @@ RPWM_KIRI=board.get_pin(RPWM_KIRI_PIN)
 LPWM_KIRI=board.get_pin(LPWM_KIRI_PIN)
 EON1_KIRI=board.get_pin(EON1_KIRI_PIN)
 EON2_KIRI=board.get_pin(EON2_KIRI_PIN)
-
+def customThread(fungsiThread):
+	myThread=threading.Thread(target=fungsiThread,daemon=True)
+	myThread.start()
 def drible(inputspeed=150):
 	speed=inputspeed/255
 	speed=round(speed,2)
@@ -131,10 +114,13 @@ def setMotor(motor_kiri=0,motor_kanan=0,motor_belakang=0):
 	kiri(motor_kiri)
 	belakang(motor_belakang)
 	kanan(motor_kanan)
+def nonBlockingKicker():
+	print('mulai tendang')
+	PENENDANG.write(1)#AKTIF HIGH
+	time.sleep(1.5)
+	PENENDANG.write(0)
 def tendang():
-	drible(-255)
-	time.sleep(2)
-	drible()
+	customThread(nonBlockingKicker)
 def getIR():
 	if IR_READ.read():
 		return False
@@ -151,18 +137,18 @@ def getKompas(index=0):
 			dataAsli=file.readline()
 			file.close()
 			pecahData=dataAsli.split(',')
-			print('FILE ASLI:',dataAsli)
-			print('FILE SPLIT:',pecahData)
+			#print('FILE ASLI:',dataAsli)
+			#print('FILE SPLIT:',pecahData)
+			print(int(float(pecahData[index])))
 			return int(float(pecahData[index]))
 		except ValueError:
-			return int(float(pecahData[index]))
+			return 
 		except IndexError:
-			return int(float(pecahData[index]))
+			return 
 		except:
-			pass
+			return
 	else:
 		return BASE_MUSUH
-print(getKompas())
 drible()
 
 """while True:

@@ -205,7 +205,7 @@ tsy.grid(row=1,column=0,sticky='E',padx=7)
 tsy=Label(window,text='PORT : ',bg='#10171f',fg='white',font='Courier 11')
 tsy.grid(row=2,column=0,sticky='E',padx=7)
 ts2=Label(window,text=ip_address,bg='#10171f',font='Courier 11 bold',fg='white')
-ts2.grid(row=1,column=1,sticky='E')
+ts2.grid(row=1,column=1,sticky='W')
 ts2=Label(window,text=PORT,bg='#10171f',font='Courier 11 bold',fg='white')
 ts2.grid(row=2,column=1,pady=20,sticky='W')
 
