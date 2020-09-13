@@ -5,7 +5,7 @@
 #p=pwm
 
 #RELAY/PENENDANG
-PENENDANG_PIN='d:40:o'
+PENENDANG_PIN='d:39:o'
 #IR
 IR_PIN='d:3:i'
 #MOTOR
