@@ -117,10 +117,13 @@ def setMotor(motor_kiri=0,motor_kanan=0,motor_belakang=0):
 def nonBlockingKicker():
 	print('mulai tendang')
 	PENENDANG.write(1)#AKTIF HIGH
-	time.sleep(1.5)
+	time.sleep(2)
 	PENENDANG.write(0)
 def tendang():
-	customThread(nonBlockingKicker)
+	print('mulai tendang')
+	PENENDANG.write(1)#AKTIF HIGH
+	time.sleep(2)
+	PENENDANG.write(0)
 def getIR():
 	if IR_READ.read():
 		return False
@@ -150,7 +153,10 @@ def getKompas(index=0):
 	else:
 		return BASE_MUSUH
 drible()
-
+#tendang()
+#PENENDANG.write(1)#AKTIF HIGH
+#time.sleep(2)
+#PENENDANG.write(0)
 """while True:
 	print(getIR())"""
 #time.sleep(4)
