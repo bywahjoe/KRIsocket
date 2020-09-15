@@ -125,10 +125,23 @@ def tendang():
 	time.sleep(2)
 	PENENDANG.write(0)
 def getIR():
-	if IR_READ.read():
-		return False
-	else:
-		return True
+	return not IR_READ.read()
+def getIRKiri():
+	return not IR_READ.read()
+def getIRKanan():
+	return not IR_READ.read()
+def getAllMyIR():
+	myStatus=[]
+	status_IR=''
+	statusKiri=getIRKiri()
+	statusTengah=getIR()
+	statusKanan=getIRKanan()
+	myStatus.append(statusKiri)
+	myStatus.append(statusTengah)
+	myStatus.append(statusKanan)
+	for i in myStatus:
+		status_IR+=str(int(myStatus[i]))
+	return status_IR
 def fileKompasNotEmpty():
 	get_status=os.stat(FILE_KOMPAS).st_size>0
 	return get_status
@@ -169,6 +182,7 @@ def openKompas():
 openKompas()
 drible()
 
+#print(getAllMyIR())
 #tendang()
 #PENENDANG.write(1)#AKTIF HIGH
 #time.sleep(2)
