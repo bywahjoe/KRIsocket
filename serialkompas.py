@@ -1,9 +1,12 @@
 import serial
 import time
 import datetime
+import os
 from configku import *
 serialcon=serial.Serial(PYSERIAL_COM,BAUDRATE)
+kompasPID=os.getpid()
 print('Serial---CMD')
+print('THREAD PID : ',kompasPID)
 mulai=0
 while True:
 	try: 
@@ -15,7 +18,7 @@ while True:
 		recvdata=recvdata.replace('\r','').replace('\n','')
 		print(waktu,recvdata)
 		recvdata=recvdata+waktu
-		if mulai==10:
+		if mulai==RESET_LOG_KOMPAS:
 			mulai=0
 			file=open(FILE_KOMPAS,'w')
 		else:

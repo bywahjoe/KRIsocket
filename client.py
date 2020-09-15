@@ -6,7 +6,7 @@ from configku import *
 from mainarduino import *
 
 PIDX=0
-print("CLIENT VIEW **")
+print('CLIENT VIEW **,CMD PID:',os.getpid())
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
 print(f"    Computer Name	   : {hostname}")
@@ -87,8 +87,8 @@ while True:
 			elif terima=='wahyu':
 				kirim('Masuk')
 			elif terima=='testmotor':
-				testThreadMotor(3,150,150,150)
-				testThreadMotor(3,-150,-150,-150)
+				ex_manual(3,150,150,150)
+				ex_manual(3,-150,-150,-150)
 			elif terima=='stops':
 				#oeee=''
 				stop()

@@ -142,17 +142,33 @@ def getKompas(index=0):
 			pecahData=dataAsli.split(',')
 			#print('FILE ASLI:',dataAsli)
 			#print('FILE SPLIT:',pecahData)
-			print(int(float(pecahData[index])))
-			return int(float(pecahData[index]))
-		except ValueError:
-			return 
-		except IndexError:
-			return 
-		except:
+			try:
+				sendKompas=int(pecahData[index])
+			except ValueError:
+				file=open(FILE_KOMPAS,READ_FILE)
+				dataAsli=file.readline()
+				file.close()
+				pecahData=dataAsli.split(',')
+				sendKompas=int(float(pecahData[index]))
+			except Exception as e:
+				print(e)
+				return
+
+			print(sendKompas)
+			return sendKompas
+		except Exception as e:
+			print(e)
 			return
 	else:
 		return BASE_MUSUH
+def startSerialKompas():
+	os.system('start /wait cmd /k python serialkompas.py')
+def openKompas():
+	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
+	threadKompas.start()
+openKompas()
 drible()
+
 #tendang()
 #PENENDANG.write(1)#AKTIF HIGH
 #time.sleep(2)
