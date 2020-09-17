@@ -165,13 +165,13 @@ def getKompas(index=0):
 				sendKompas=int(float(pecahData[index]))
 			except Exception as e:
 				print(e)
-				return
+				return BASE_MUSUH
 
 			print(sendKompas)
 			return sendKompas
 		except Exception as e:
 			print(e)
-			return
+			return BASE_MUSUH
 	else:
 		return BASE_MUSUH
 def startSerialKompas():
@@ -179,9 +179,12 @@ def startSerialKompas():
 def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
-openKompas()
+#openKompas()
 drible()
-
+setMotor(150,150,150)
+while True:
+	tendang()
+	time.sleep(7)
 #print(getAllMyIR())
 #tendang()
 #PENENDANG.write(1)#AKTIF HIGH
