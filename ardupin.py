@@ -7,9 +7,9 @@
 #RELAY/PENENDANG
 PENENDANG_PIN='d:12:o'
 #IR
-IR_PIN_KIRI='d:2:i'
+IR_PIN_KIRI='d:13:i'
 IR_PIN_TENGAH='d:3:i'
-IR_PIN_KANAN='d:13:i'
+IR_PIN_KANAN='d:2:i'
 #MOTOR
 RPWM_DRIBLE_PIN='d:7:p' # digital pin 7 as PWM
 LPWM_DRIBLE_PIN='d:6:p'

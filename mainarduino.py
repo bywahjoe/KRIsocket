@@ -176,12 +176,15 @@ def startSerialKompas():
 def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
-openKompas()
+#openKompas()
 
-#print(getAllMyIR())
-
+while True:
+	print(getAllMyIR())
 drible()
-#setMotor(150,150,150)
+time.sleep(5)
+setMotor(45,-45,20)
+time.sleep(2)
+stop()
 """while True:
 	tendang()
 	time.sleep(7)"""
