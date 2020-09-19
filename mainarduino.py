@@ -12,7 +12,9 @@ it.start()
 #RELAY/PENENDANG
 PENENDANG=board.get_pin(PENENDANG_PIN)
 #INFRARED
-IR_READ=board.get_pin(IR_PIN)
+IR_KIRI=board.get_pin(IR_PIN_KIRI)
+IR_TENGAH=board.get_pin(IR_PIN_TENGAH)
+IR_KANAN=board.get_pin(IR_PIN_KANAN)
 #MOTOR
 RPWM_DRIBLE=board.get_pin(RPWM_DRIBLE_PIN)
 LPWM_DRIBLE=board.get_pin(LPWM_DRIBLE_PIN)
@@ -123,25 +125,20 @@ def tendang():
 	print('mulai tendang')
 	PENENDANG.write(1)#AKTIF HIGH
 	time.sleep(2)
-	PENENDANG.write(0)
-def getIR():
-	return not IR_READ.read()
+	PENENDte(0)
 def getIRKiri():
-	return not IR_READ.read()
+	return not IR_KIRI.read()
+def getIR():
+	return not IR_TENGAH.read()
 def getIRKanan():
-	return not IR_READ.read()
+	return not IR_KANAN.read()
 def getAllMyIR():
-	myStatus=[]
-	status_IR=''
-	statusKiri=getIRKiri()
-	statusTengah=getIR()
-	statusKanan=getIRKanan()
-	myStatus.append(statusKiri)
-	myStatus.append(statusTengah)
-	myStatus.append(statusKanan)
-	for i in myStatus:
-		status_IR+=str(int(myStatus[i]))
-	return status_IR
+	statusIR=[]
+	#kiri,tengah,kanan
+	statusIR.append(getIRKiri())
+	statusIR.append(getIR())
+	statusIR.append(getIRKanan())
+	return statusIR
 def fileKompasNotEmpty():
 	get_status=os.stat(FILE_KOMPAS).st_size>0
 	return get_status
@@ -179,12 +176,13 @@ def startSerialKompas():
 def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
-#openKompas()
+openKompas()
+#print(getAllMyIR())
 drible()
-setMotor(150,150,150)
-while True:
+#setMotor(150,150,150)
+"""while True:
 	tendang()
-	time.sleep(7)
+	time.sleep(7)"""
 #print(getAllMyIR())
 #tendang()
 #PENENDANG.write(1)#AKTIF HIGH
