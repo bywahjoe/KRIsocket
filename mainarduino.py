@@ -177,7 +177,9 @@ def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
 openKompas()
+
 #print(getAllMyIR())
+
 drible()
 #setMotor(150,150,150)
 """while True:
