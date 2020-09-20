@@ -124,8 +124,8 @@ def nonBlockingKicker():
 def tendang():
 	print('mulai tendang')
 	PENENDANG.write(1)#AKTIF HIGH
-	time.sleep(2)
-	PENENDte(0)
+	time.sleep(1.5)
+	PENENDANG.write(0)
 def getIRKiri():
 	return not IR_KIRI.read()
 def getIR():
@@ -171,14 +171,38 @@ def getKompas(index=0):
 			return BASE_MUSUH
 	else:
 		return BASE_MUSUH
+def lockTarget(setRange=ERROR_RATE):
+	try:
+		myKompas=getKompas()
+	except Exception as e:
+		print(e)
+		return False
+	if(setRange==ERROR_RATE):
+		rangeKompas=myKompas>=BASE_MUSUH_MIN and myKompas<=BASE_MUSUH_MAX
+		print('STATUS\t\t: ',rangeKompas,'\nRANGE_RATE\t: ',setRange,'\nBASE_MUSUH_MIN\t: ',BASE_MUSUH_MIN,'\nKOMPAS_VALUE\t: ',myKompas,'\nBASE_MUSUH_MAX\t: ',BASE_MUSUH_MAX)
+		return rangeKompas
+	else:
+		NEW_BASE_MUSUH_MIN=(BASE_MUSUH-setRange)%360
+		NEW_BASE_MUSUH_MAX=(BASE_MUSUH+setRange)%360
+		rangeKompas=myKompas>=NEW_BASE_MUSUH_MIN and myKompas<=NEW_BASE_MUSUH_MAX
+		print('STATUS\t\t: ',rangeKompas,'\nRANGE_RATE\t: ',setRange,'\nBASE_MUSUH_MIN\t: ',NEW_BASE_MUSUH_MIN,'\nKOMPAS_VALUE\t: ',myKompas,'\nBASE_MUSUH_MAX\t: ',NEW_BASE_MUSUH_MAX)
+		return rangeKompas
+def destroyTarget(setRange=ERROR_RATE):
+	if(lockTarget(setRange)):
+		tendang()
+		return True 
+	else:
+		print('POSITION FAILED')
+		return False
 def startSerialKompas():
 	os.system('start /wait cmd /k python serialkompas.py')
 def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
 openKompas()
-drible()
 
+drible()
+#print(destroyTarget())
 """while True:
 	print(getAllMyIR())"""
 
