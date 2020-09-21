@@ -144,33 +144,29 @@ def fileKompasNotEmpty():
 	return get_status
 def getKompas(index=0):
 	#HEADING1,HEADING2,TIMELOG
-	if(fileKompasNotEmpty()):
+	batasError=0
+	while True:
+		
 		try:
 			file=open(FILE_KOMPAS,READ_FILE)
 			dataAsli=file.readline()
 			file.close()
-			pecahData=dataAsli.split(',')
-			#print('FILE ASLI:',dataAsli)
-			#print('FILE SPLIT:',pecahData)
-			try:
-				sendKompas=int(pecahData[index])
-			except ValueError:
-				file=open(FILE_KOMPAS,READ_FILE)
-				dataAsli=file.readline()
-				file.close()
-				pecahData=dataAsli.split(',')
-				sendKompas=int(float(pecahData[index]))
-			except Exception as e:
-				print(e)
-				return BASE_MUSUH
-
-			print(sendKompas)
-			return sendKompas
+			pecahData=dataAsli.split(',')[0]
+			#print(pecahData)
+			if pecahData and pecahData.strip():
+				sendKompas=int(float(pecahData))
+				return sendKompas
 		except Exception as e:
-			print(e)
-			return BASE_MUSUH
-	else:
-		return BASE_MUSUH
+			print('FAIL: ',e)
+			print(pecahData)
+			#time.sleep(5)
+			pass
+		if batasError==3:
+			print('READ FILE ERROR')
+			#time.sleep(5)
+			return BASE_MARKAS
+			break;
+		batasError=batasError+1			
 def lockTarget(setRange=ERROR_RATE,position=BASE_MUSUH):
 	try:
 		myKompas=getKompas()
@@ -189,6 +185,7 @@ def lockTarget(setRange=ERROR_RATE,position=BASE_MUSUH):
 		return rangeKompas
 def destroyTarget(setRange=ERROR_RATE,position=BASE_MUSUH):
 	if(lockTarget(setRange,position)):
+		stop()
 		tendang()
 		return True 
 	else:
@@ -200,11 +197,19 @@ def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
 #openKompas()
-
 drible()
-print(lockTarget())
+
+print(getKompas())
+#print(lockTarget())
 #print(destroyTarget())
 """while True:
-	print(getAllMyIR())"""
-
-
+	tendang()
+	time.sleep(7)"""
+"""	
+while True:
+	getarah=lockTarget(20)
+	if getarah:
+		stop()
+		tendang()
+		break
+	setMotor(50,-50,-20)"""
