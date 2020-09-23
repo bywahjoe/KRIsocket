@@ -59,6 +59,8 @@ def runArduinoCompass():
 	print(PIDX)
 """threadx = threading.Thread(target=runArduinoCompass,daemon=True)
 threadx.start()"""
+def umpan():
+	kirim('UMPAN')
 def otomatis():
 	print('startwhile')
 	play=True
@@ -93,7 +95,7 @@ while True:
 				#oeee=''
 				stop()
 			elif terima=='getir':
-				kirim(getIR())
+				kirim(getAllMyIR())
 			elif terima=='selenoid':
 				tendang()
 			elif terima=='kompas':

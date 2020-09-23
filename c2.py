@@ -48,6 +48,8 @@ def ex_manual(delay,kiri,kanan,belakang=0):
 	"""setMotor(kiri,kanan,belakang)
 	time.sleep(delay)
 	stop()"""
+def umpan():
+	kirim('UMPANTENDANG')
 def otomatis():
 	print('startwhile')
 	play=True
@@ -80,6 +82,8 @@ while True:
 				#stop()
 			elif terima=='selenoid':
 				ok=''
+			elif terima=='statusumpan':
+				umpan()
 			else:
 				print(f"S| {terima} ")
 	except BlockingIOError:

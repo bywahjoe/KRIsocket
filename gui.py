@@ -20,8 +20,13 @@ window.state('zoomed')
 window.configure(bg='#10171f')
 #window.geometry('%dx%d+0+0' % (panjang,lebar))
 MENU_HEADER='white'
+
+#DEFAULT SENDER OPTION
 getid=IntVar()
 getid.set(3)
+global mySendDefaultID
+mySendDefaultID=getid.get()
+#
 strgy=IntVar()
 strgy.set(1)
 status_server=StringVar()
@@ -29,7 +34,7 @@ status_server.set('Not Running')
 
 
 def_pwmup=StringVar()
-def_pwmup.set('150')
+def_pwmup.set('120')
 def_pwmkiri=StringVar()
 def_pwmkiri.set('-45,45')
 def_pwmkanan=StringVar()
@@ -58,16 +63,38 @@ print(f"+IP      :{ip_address}")
 print("+HOST    -    PORT")
 print(JARINGAN)
 
-startclient=10
+try:
+	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	server.bind(JARINGAN)
+	print("**Starting Server")
+except socket.error as e:
+	#print(f"ERROR {e}")
+	fail(e)
+	#error_box()
 def fail(pesan_error):
 	viewerror.showerror(title='!ERROR', message=pesan_error)
 def notice(pesan_error):
 	viewerror.showinfo(title='!NOTICE', message=pesan_error)
 def getTime():
 	now=datetime.datetime.now()
-	waktu=str(now.hour)+':'+str(now.minute)+':'+str(now.second)+'-'
-	print(waktu)
+	waktu=str(now.hour)+':'+str(now.minute)+':'+str(now.second)+'->'
+	#print(waktu)
 	return waktu
+def addToTerminal(myClientID,inputPesan):
+	#				0		1		 2		  3		     4
+	listSendID=['[SVR]:','[C:A]:','[C:B]:','[KIPER]:','[ALL]:']
+	getLocalTime=getTime()
+	pesanTerminal=getLocalTime+listSendID[myClientID]+inputPesan
+	#
+	list_area.configure(state='normal')
+	list_area.insert('1.0',pesanTerminal+'\n')
+	list_area.configure(state='disabled')
+	#
+	if myClientID==0:
+		notice(pesanTerminal)
+	print(pesanTerminal)
+def sendToClient(myClientID,replace_pesan):
+	conn_client[myClientID].send(bytes(replace_pesan,ENCODING))
 def ping_client():
 	isi_pesan='PING'
 	try:
@@ -77,60 +104,61 @@ def ping_client():
 	except socket.error as e:
 		text_error=str(e)+'\n ***CONECTION LOSS '
 		fail(text_error)
-try:
-	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	server.bind(JARINGAN)
-	print("**Starting Server")
-except socket.error as e:
-	#print(f"ERROR {e}")
-	fail(e)
-	#error_box()
-	
-#def error_box():
-#	messagebox.showerror("YA")
+def anotherClient(myid):
+	print(f'MYID:{myid}','\nID:1 -->CLIENTA/1','\nID:2 -->CLIENTB/2')
+	if myid==2:
+		executeID=0
+	else:
+		executeID=1
+	return executeID
 def multi_client(conn,address,myid):
 	conn_client.append(conn)
 	ip_client.append(address)
-	hola=f"{getTime()}>[C:{myid}]:CLIENT from {address} "
-	notice(hola)
-	print(hola)
-	list_area.configure(state='normal')
-	list_area.insert('1.0',hola+'\n')
-	list_area.configure(state='disabled')
+	#
+	addToTerminal(0,f'CLIENT from {address}')
 	if  conn:
-		print(f"CLIENT_ID: {myid} | {address}")
+		#print(f"CLIENT_ID: {myid} | {address}")
 		pesan_pertama=pesan+str(myid)
 		conn.send(bytes(pesan_pertama,ENCODING))
+		#sendToClient(,pesan_pertama)
 	while True:
 		data = conn.recv(SIZE).decode(ENCODING)
 		if data:
-			hola=f"{getTime()}>[C:{myid}]:{data}"
-			print(f"C:{data} | {address}")	
-			list_area.configure(state='normal')
-			list_area.insert('1.0',hola+'\n')
-			list_area.configure(state='disabled')
+			addToTerminal(myid,data)
+			print(f"C:{data} | {address}")
+			if data=='UMPANTENDANG':
+				reverseClient=anotherClient(myid)
+				sendToClient(reverseClient,'UMPANBALIK')	
 def multi_send(pesan):
-	if pesan.startswith('MNL'):
-		replace_pesan=pesan
-	else:
-		replace_pesan=text_command.get(pesan.upper())
-	
+	try:
+		typePesan='SND|'
+		print(f"""
+		[MODE]{typePesan}
+		1:CLIENT1
+		2:CLIENT2
+		3:ALL
 
-	index_client=getid.get()
-	print(replace_pesan)
-	#print(index_client)
-
-	list_area.configure(state='normal')
-	if index_client==3:
-		for toall in conn_client:
-			toall.send(bytes(replace_pesan,ENCODING))
-		hola=f'{getTime()}>[ALL]:{replace_pesan}'
-		list_area.insert('1.0',hola+'\n')
-	else:
-		conn_client[index_client].send(bytes(replace_pesan,ENCODING))
-		hola=f'{getTime()}>[S:{index_client+1}]:{replace_pesan}'
-		list_area.insert('1.0',hola+'\n')
-	list_area.configure(state='disabled')
+		""")
+		if pesan.startswith('MNL'):
+			replace_pesan=pesan
+		else:
+			replace_pesan=text_command.get(pesan.upper())
+		#
+		index_client=getid.get()
+		#
+		print('SEND_TO_CLIENT:',index_client,': ',replace_pesan)
+		#print(index_client)
+		if index_client==mySendDefaultID:
+			for toall in conn_client:
+				toall.send(bytes(replace_pesan,ENCODING))
+			index_client=4
+		else:
+			myClientID=index_client
+			sendToClient(myClientID,replace_pesan)
+			index_client=index_client+1
+		addToTerminal(index_client,typePesan+replace_pesan)
+	except Exception as e:
+		fail(e)
 def send_manual(btn_id):
 	
 	param_up=abs(int(def_pwmup.get()))
@@ -166,7 +194,6 @@ def send_manual(btn_id):
 	print(isi_pesan)
 	multi_send(isi_pesan)
 def start_server():
-
 	print("LISTENING CLIENT...")
 	DEVICE=0	
 	while True:
@@ -180,7 +207,7 @@ def start_server():
 				ip_client1.set(ip_client[0])
 				ip_client2.set(ip_client[1])
 			except IndexError:
-				dontstop=''
+				pass
 			break
 def listen_client():
 	bs1["state"] = "disable"
@@ -269,7 +296,7 @@ txp2=Label(window,textvariable=ip_client2,width=22)
 txp2.grid(row=12,column=0,columnspan=2)
 txp2=Label(window,textvariable=ip_client3,width=22)
 txp2.grid(row=13,column=0,columnspan=2)
-print(getid.get())
+print('START_DEFAULT_SENDER:',getid.get())
 
 
 #command button
@@ -317,7 +344,7 @@ bxp3=Button(window,text='MOTOR',command=lambda: multi_send('TST3'),width=10,heig
 bxp4=Button(window,text='SELENOID',command=lambda: multi_send('TST4'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
 bxp5=Button(window,text='KOMPAS',command=lambda: multi_send('TST5'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
 bxp6=Button(window,text='TESTRECV',command=lambda: multi_send('TST6'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp7=Button(window,text='TESTRECV',command=lambda: multi_send('TST7'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp7=Button(window,text='MYBALL',command=lambda: multi_send('TST7'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
 bxp8=Button(window,text='TESTRECV',command=lambda: multi_send('TST8'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
 bxp9=Button(window,text='TESTRECV',command=lambda: multi_send('TST9'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
 bxp10=Button(window,text='TESTRECV',command=lambda: multi_send('TST10'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
@@ -370,8 +397,6 @@ list_area.grid(row=14,column=2,columnspan=5)
 list_area.insert('1.0','NO DATA.....'+'\n')
 list_area.configure(state='disabled')
 
-#list_area.insert('ok')
-#startserver.pack()
-#window.after(0,play)
+
 window.mainloop()
 

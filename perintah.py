@@ -20,7 +20,7 @@ text_command={
 'TST4':'selenoid',
 'TST5':'kompas',
 'TST6':'wahyu',
-'TST7':'NULL',
+'TST7':'statusumpan',
 'TST8':'NULL',
 'TST9':'NULL',
 'TST10':'NULL',
