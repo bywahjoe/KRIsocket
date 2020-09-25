@@ -2,8 +2,17 @@ import socket
 import time
 import os
 import threading
+import multiprocessing
 from configku import *
 from mainarduino import *
+
+###ADD
+import cv2
+import argparse
+import numpy as np
+import pickle
+
+MODE_ROBOT=1
 
 PIDX=0
 print('CLIENT VIEW **,CMD PID:',os.getpid())
@@ -62,14 +71,21 @@ threadx.start()"""
 def umpan():
 	kirim('UMPAN')
 def otomatis():
+	##SETT
+	"""print('MODE ROBOT : ',MODE_ROBOT)
+	if MODE_ROBOT==2:
+		multi=multiprocessing.Process(target=typeRobot2)
+	else:
+		multi=multiprocessing.Process(target=typeRobot1)
+	multi.start()"""
 	print('startwhile')
 	play=True
 	while play:
 		##CODE
-			
 		try:
 			new_message=client.recv(SIZE).decode(ENCODING)
 			if new_message:
+				#multi.terminate()
 				return new_message
 		except BlockingIOError:
 			pass
