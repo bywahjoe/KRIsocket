@@ -36,6 +36,9 @@ RPWM_KIRI=board.get_pin(RPWM_KIRI_PIN)
 LPWM_KIRI=board.get_pin(LPWM_KIRI_PIN)
 EON1_KIRI=board.get_pin(EON1_KIRI_PIN)
 EON2_KIRI=board.get_pin(EON2_KIRI_PIN)
+##
+modeSelenoid=0
+##
 def customThread(fungsiThread):
 	myThread=threading.Thread(target=fungsiThread,daemon=True)
 	myThread.start()
@@ -123,27 +126,39 @@ def nonBlockingKicker():
 	time.sleep(2)
 	PENENDANG.write(0)
 def modeTendang(value=0):
+	global modeSelenoid
 	if value==0:
 		MODE_PENENDANG.write(value)
 		print('SET NEXT:MODE LOW POWER')
+		modeSelenoid=value
 	elif value==1:
 		MODE_PENENDANG.write(value)
 		print('SET NEXT:MODE HIGH POWER')
+		modeSelenoid=value
 	else:
-		print('MODE NOT CHANGE')
+		print('SET NEXT:MODE NOT CHANGE')
+def getSelenoidMode():	
+	if modeSelenoid==0:
+		myMode='RUNNING_MODE: LOW POWER'
+	elif modeSelenoid==1:
+		myMode='RUNNING_MODE: HIGH POWER'
+	else:
+		myMode='NULL'
+	return myMode
 def tendang(MODE=2):
 	#0=LOW POWER
 	#1=HIGH POWER
 	#2=DEFAULT
-	print('mulai tendang')
+	print('\nmulai tendang_',getSelenoidMode())
 	PENENDANG.write(1)#AKTIF HIGH
 	time.sleep(1.5)
 	PENENDANG.write(0)
 	#CHANGE MODE
 	modeTendang(MODE)
-def setDefaultTendang(value=0):
+def resetTendang(value=0):
 	#0=LOW
 	#1=HIGH
+	print('RESET-- ')
 	tendang(value)
 def getIRKiri():
 	return not IR_KIRI.read()
@@ -217,7 +232,11 @@ def openKompas():
 	threadKompas.start()
 #openKompas()
 drible(180)
-setDefaultTendang()
+resetTendang()
+#tendang()
+#tendang(1)
+#tendang(0)
+#tendang()
 """tendang()
 setTendang()
 #tendang()
