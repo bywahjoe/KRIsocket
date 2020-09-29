@@ -11,6 +11,7 @@ it=pyfirmata.util.Iterator(board)
 it.start()
 #RELAY/PENENDANG
 PENENDANG=board.get_pin(PENENDANG_PIN)
+MODE_PENENDANG=board.get_pin(MODE_PENENDANG_PIN)
 #INFRARED
 IR_KIRI=board.get_pin(IR_PIN_KIRI)
 IR_TENGAH=board.get_pin(IR_PIN_TENGAH)
@@ -121,11 +122,29 @@ def nonBlockingKicker():
 	PENENDANG.write(1)#AKTIF HIGH
 	time.sleep(2)
 	PENENDANG.write(0)
-def tendang():
+def modeTendang(value=0):
+	if value==0:
+		MODE_PENENDANG.write(value)
+		print('SET NEXT:MODE LOW POWER')
+	elif value==1:
+		MODE_PENENDANG.write(value)
+		print('SET NEXT:MODE HIGH POWER')
+	else:
+		print('MODE NOT CHANGE')
+def tendang(MODE=2):
+	#0=LOW POWER
+	#1=HIGH POWER
+	#2=DEFAULT
 	print('mulai tendang')
 	PENENDANG.write(1)#AKTIF HIGH
 	time.sleep(1.5)
 	PENENDANG.write(0)
+	#CHANGE MODE
+	modeTendang(MODE)
+def setDefaultTendang(value=0):
+	#0=LOW
+	#1=HIGH
+	tendang(value)
 def getIRKiri():
 	return not IR_KIRI.read()
 def getIR():
@@ -197,7 +216,18 @@ def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
 #openKompas()
-drible()
+drible(180)
+setDefaultTendang()
+"""tendang()
+setTendang()
+#tendang()
+while True:
+	time.sleep(10)
+	tendang()
+	setTendang(1)
+	time.sleep(20)
+	tendang()
+	setTendang()"""
 """play=True
 setMotor(50,50,0)
 while play:

@@ -63,14 +63,6 @@ print(f"+IP      :{ip_address}")
 print("+HOST    -    PORT")
 print(JARINGAN)
 
-try:
-	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	server.bind(JARINGAN)
-	print("**Starting Server")
-except socket.error as e:
-	#print(f"ERROR {e}")
-	fail(e)
-	#error_box()
 def fail(pesan_error):
 	viewerror.showerror(title='!ERROR', message=pesan_error)
 def notice(pesan_error):
@@ -80,6 +72,14 @@ def getTime():
 	waktu=str(now.hour)+':'+str(now.minute)+':'+str(now.second)+'->'
 	#print(waktu)
 	return waktu
+try:
+	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	server.bind(JARINGAN)
+	print("**Starting Server")
+except socket.error as e:
+	#print(f"ERROR {e}")
+	fail(e)
+	#error_box()
 def addToTerminal(myClientID,inputPesan):
 	#				0		1		 2		  3		     4
 	listSendID=['[SVR]:','[C:A]:','[C:B]:','[KIPER]:','[ALL]:']
