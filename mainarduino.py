@@ -14,8 +14,10 @@ PENENDANG=board.get_pin(PENENDANG_PIN)
 MODE_PENENDANG=board.get_pin(MODE_PENENDANG_PIN)
 #INFRARED
 IR_KIRI=board.get_pin(IR_PIN_KIRI)
+IR_KIRI2=board.get_pin(IR_PIN_KIRI2)
 IR_TENGAH=board.get_pin(IR_PIN_TENGAH)
 IR_KANAN=board.get_pin(IR_PIN_KANAN)
+IR_KANAN2=board.get_pin(IR_PIN_KANAN2)
 #MOTOR
 RPWM_DRIBLE=board.get_pin(RPWM_DRIBLE_PIN)
 LPWM_DRIBLE=board.get_pin(LPWM_DRIBLE_PIN)
@@ -160,18 +162,33 @@ def resetTendang(value=0):
 	#1=HIGH
 	print('RESET-- ')
 	tendang(value)
+#IR
+#	 _2\ 3 /4_
+#  1/	\ /	  \5
+#  /		   \
+def getIRKiri2():
+	#1
+	return not IR_KIRI2.read()
 def getIRKiri():
+	#2
 	return not IR_KIRI.read()
 def getIR():
+	#3
 	return not IR_TENGAH.read()
 def getIRKanan():
+	#4
 	return not IR_KANAN.read()
+def getIRKanan2():
+	#5
+	return not IR_KANAN2.read()
 def getAllMyIR():
 	statusIR=[]
-	#kiri,tengah,kanan
+	#kiri2,kiri,tengah,kanan,kanan2
+	statusIR.append(getIRKiri2())
 	statusIR.append(getIRKiri())
 	statusIR.append(getIR())
 	statusIR.append(getIRKanan())
+	statusIR.append(getIRKanan2())
 	return statusIR
 def fileKompasNotEmpty():
 	get_status=os.stat(FILE_KOMPAS).st_size>0
@@ -232,6 +249,7 @@ def openKompas():
 	threadKompas.start()
 #openKompas()
 drible(180)
+print(getAllMyIR())
 resetTendang()
 #tendang()
 #tendang(1)

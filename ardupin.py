@@ -8,9 +8,16 @@
 PENENDANG_PIN='d:12:o'
 MODE_PENENDANG_PIN='d:49:o'
 #IR
-IR_PIN_KIRI='d:13:i'
-IR_PIN_TENGAH='d:3:i'
-IR_PIN_KANAN='d:2:i'
+#	 _2\ 3 /4_
+#  1/	\ /	  \5
+#  /		   \
+IR_PIN_KIRI='d:13:i'#1
+IR_PIN_KIRI2='d:44:i'#2
+#
+IR_PIN_TENGAH='d:3:i'#3
+#
+IR_PIN_KANAN='d:2:i'#4
+IR_PIN_KANAN2='d:45:i'#5
 #MOTOR
 RPWM_DRIBLE_PIN='d:7:p' # digital pin 7 as PWM
 LPWM_DRIBLE_PIN='d:6:p'
