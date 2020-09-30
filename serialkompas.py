@@ -8,6 +8,9 @@ kompasPID=os.getpid()
 print('Serial---CMD')
 print('THREAD PID : ',kompasPID)
 mulai=0
+def clearFIleKompas():
+	clearLOG=open(FILE_KOMPAS,'w').close()
+clearFIleKompas()
 while True:
 	try: 
 		recvdata=serialcon.readline().decode(ENCODING_FORMAT)
@@ -34,4 +37,4 @@ while True:
 	except Exception as e:
 		print('FAILED',e)
 		serialcon.close()
-		serialcon=serial.Serial(PYSERIAL_COM,BAUDRATE)	
+		serialcon=serial.Serial(PYSERIAL_COM,BAUDRATE)
