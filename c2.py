@@ -48,8 +48,8 @@ def ex_manual(delay,kiri,kanan,belakang=0):
 	"""setMotor(kiri,kanan,belakang)
 	time.sleep(delay)
 	stop()"""
-def umpan():
-	kirim('UMPANTENDANG')
+def forward():
+	kirim('LETSGO')
 def otomatis():
 	print('startwhile')
 	play=True
@@ -67,7 +67,7 @@ def otomatis():
 					#AllMotorStop
 					kirim('P:RETRYCV')
 					#CODE
-				elif new_message=='UMPANBALIK':
+				elif new_message=='LETSMOVE':
 					#HANDLE KONDISI SAAT FORWADING
 					print('HANDLE')
 				else:
@@ -96,7 +96,7 @@ while True:
 			elif terima=='selenoid':
 				ok=''
 			elif terima=='statusumpan':
-				umpan()
+				forward()
 			else:
 				print(f"S| {terima} ")
 	except BlockingIOError:

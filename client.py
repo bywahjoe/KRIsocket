@@ -68,8 +68,8 @@ def runArduinoCompass():
 	print(PIDX)
 """threadx = threading.Thread(target=runArduinoCompass,daemon=True)
 threadx.start()"""
-def umpan():
-	kirim('UMPANTENDANG')
+def forward():
+	kirim('LETSGO')
 def otomatis():
 	print('startwhile')
 	play=True
@@ -86,7 +86,7 @@ def otomatis():
 					#AllMotorStop
 					kirim('P:RETRYCV')
 					#CODE
-				elif new_message=='UMPANBALIK':
+				elif new_message=='LETSMOVE':
 					#HANDLE KONDISI SAAT FORWADING
 					print('HANDLE')
 				else:
@@ -120,7 +120,7 @@ while True:
 			elif terima=='selenoid':
 				tendang()
 			elif terima=='statusumpan':
-				umpan()
+				forward()
 			elif terima=='kompas':
 				kirim(getKompas())
 				print(getKompas())

@@ -126,9 +126,9 @@ def multi_client(conn,address,myid):
 		if data:
 			addToTerminal(myid,data)
 			print(f"C:{data} | {address}")
-			if data=='UMPANTENDANG':
+			if data=='LETSGO':
 				reverseClient=anotherClient(myid)
-				sendToClient(reverseClient,'UMPANBALIK')	
+				sendToClient(reverseClient,'LETSMOVE')	
 def multi_send(pesan):
 	try:
 		typePesan='SND|'
