@@ -163,9 +163,9 @@ def resetTendang(value=0):
 	print('RESET-- ')
 	tendang(value)
 #IR
-#	 _2\ 3 /4_
-#  1/	\ /	  \5
-#  /		   \
+#    _2\ 3 /4_
+#  1/   \ /   \5
+#  /           \
 def getIRKiri2():
 	#1
 	return not IR_KIRI2.read()

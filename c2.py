@@ -59,7 +59,20 @@ def otomatis():
 		try:
 			new_message=client.recv(SIZE).decode(ENCODING)
 			if new_message:
-				return new_message
+				if new_message=='reauto':
+					#ResetStep
+					kirim('P:REAUTO')
+					#CODE
+				elif new_message=='retrycv':
+					#AllMotorStop
+					kirim('P:RETRYCV')
+					#CODE
+				elif new_message=='UMPANBALIK':
+					#HANDLE KONDISI SAAT FORWADING
+					print('HANDLE')
+				else:
+					#DESTROYCV
+					return new_message
 		except BlockingIOError:
 			pass
 		#print('continue')

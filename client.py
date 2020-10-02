@@ -69,15 +69,8 @@ def runArduinoCompass():
 """threadx = threading.Thread(target=runArduinoCompass,daemon=True)
 threadx.start()"""
 def umpan():
-	kirim('UMPAN')
+	kirim('UMPANTENDANG')
 def otomatis():
-	##SETT
-	"""print('MODE ROBOT : ',MODE_ROBOT)
-	if MODE_ROBOT==2:
-		multi=multiprocessing.Process(target=typeRobot2)
-	else:
-		multi=multiprocessing.Process(target=typeRobot1)
-	multi.start()"""
 	print('startwhile')
 	play=True
 	while play:
@@ -85,8 +78,20 @@ def otomatis():
 		try:
 			new_message=client.recv(SIZE).decode(ENCODING)
 			if new_message:
-				#multi.terminate()
-				return new_message
+				if new_message=='reauto':
+					#ResetStep
+					kirim('P:REAUTO')
+					#CODE
+				elif new_message=='retrycv':
+					#AllMotorStop
+					kirim('P:RETRYCV')
+					#CODE
+				elif new_message=='UMPANBALIK':
+					#HANDLE KONDISI SAAT FORWADING
+					print('HANDLE')
+				else:
+					#DESTROYCV
+					return new_message
 		except BlockingIOError:
 			pass
 		#print('continue')
@@ -114,6 +119,8 @@ while True:
 				kirim(getAllMyIR())
 			elif terima=='selenoid':
 				tendang()
+			elif terima=='statusumpan':
+				umpan()
 			elif terima=='kompas':
 				kirim(getKompas())
 				print(getKompas())
