@@ -4,7 +4,7 @@ text_command={
 'C3':'wahyu',
 'C4':'wahyu',
 'C5':'wahyu',
-'C6':'reauto',
+'C6':'retry',
 'C7':'retrycv',
 'C8':'NULL',
 'C9':'NULL',

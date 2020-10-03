@@ -452,7 +452,7 @@ def otomatis():
                     # ResetStep
                     kirim('P:REAUTO')
                     # CODE
-                elif new_message == 'retrycv':
+                elif new_message == 'retry':
                     # AllMotorStop
                     kirim('P:RETRYCV')
                     # CODE

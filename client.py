@@ -68,8 +68,10 @@ def runArduinoCompass():
 	print(PIDX)
 """threadx = threading.Thread(target=runArduinoCompass,daemon=True)
 threadx.start()"""
-def forward():
-	kirim('LETSGO')
+def forward(inputPesan='LETSMOVE'):
+	applyFormat=FORWADING_HEADER+str(inputPesan)
+	print(applyFormat)
+	kirim(applyFormat)
 def otomatis():
 	print('startwhile')
 	play=True
@@ -78,12 +80,13 @@ def otomatis():
 		try:
 			new_message=client.recv(SIZE).decode(ENCODING)
 			if new_message:
-				if new_message=='reauto':
+				if new_message=='auto':
 					#ResetStep
 					kirim('P:REAUTO')
 					#CODE
-				elif new_message=='retrycv':
+				elif new_message=='retry':
 					#AllMotorStop
+					print('RETRYCV')
 					kirim('P:RETRYCV')
 					#CODE
 				elif new_message=='LETSMOVE':

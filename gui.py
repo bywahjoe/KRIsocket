@@ -126,9 +126,10 @@ def multi_client(conn,address,myid):
 		if data:
 			addToTerminal(myid,data)
 			print(f"C:{data} | {address}")
-			if data=='LETSGO':
+			if data.startswith(FORWARDING_HEADER) and len(data)>4:
+				removeHeaderFormat=data.replace_pesan(FORWARDING_HEADER)
 				reverseClient=anotherClient(myid)
-				sendToClient(reverseClient,'LETSMOVE')	
+				sendToClient(reverseClient,removeHeaderFormat)	
 def multi_send(pesan):
 	try:
 		typePesan='SND|'
@@ -308,7 +309,7 @@ b2=Button(window,text='STOP',command=lambda: multi_send('C2'),width=10,height=2,
 b3=Button(window,text='RETRY',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
 b4=Button(window,text='CORNER',command=lambda: multi_send('C3'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
 b5=Button(window,text='FREE KICK',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
-b6=Button(window,text='RE-AUTO',command=lambda: multi_send('C6'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
+b6=Button(window,text='RETRY',command=lambda: multi_send('C6'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
 b7=Button(window,text='RE-TRY',command=lambda: multi_send('C7'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
 b8=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
 b9=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
