@@ -12,7 +12,7 @@ MODE_PENENDANG_PIN='d:49:o'
 #  1/	\ /	  \5
 #  /		   \
 IR_PIN_KIRI='d:13:i'#1
-IR_PIN_KIRI2='d:44:i'#2
+IR_PIN_KIRI2='d:43:i'#2
 #
 IR_PIN_TENGAH='d:3:i'#3
 #
