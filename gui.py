@@ -122,14 +122,20 @@ def multi_client(conn,address,myid):
 		conn.send(bytes(pesan_pertama,ENCODING))
 		#sendToClient(,pesan_pertama)
 	while True:
-		data = conn.recv(SIZE).decode(ENCODING)
-		if data:
-			addToTerminal(myid,data)
-			print(f"C:{data} | {address}")
-			if data.startswith(FORWARDING_HEADER) and len(data)>4:
-				removeHeaderFormat=data.replace_pesan(FORWARDING_HEADER)
-				reverseClient=anotherClient(myid)
-				sendToClient(reverseClient,removeHeaderFormat)	
+		try:
+			data = conn.recv(SIZE).decode(ENCODING)
+			if data:
+				addToTerminal(myid,data)
+				print(f"C:{data} | {address}")
+				if data.startswith(FORWARDING_HEADER) and len(data)>4:
+					removeHeaderFormat=data.replace(FORWARDING_HEADER,'')
+					reverseClient=anotherClient(myid)
+					sendToClient(reverseClient,removeHeaderFormat)
+		except Exception as e:
+			print(e)
+			text_error=str(e)+'\n ***CLIENT CONECTION LOST '
+			fail(text_error)
+			break;
 def multi_send(pesan):
 	try:
 		typePesan='SND|'

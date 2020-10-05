@@ -69,7 +69,7 @@ def runArduinoCompass():
 """threadx = threading.Thread(target=runArduinoCompass,daemon=True)
 threadx.start()"""
 def forward(inputPesan='LETSMOVE'):
-	applyFormat=FORWADING_HEADER+str(inputPesan)
+	applyFormat=FORWARDING_HEADER+str(inputPesan)
 	print(applyFormat)
 	kirim(applyFormat)
 def otomatis():

@@ -48,8 +48,10 @@ def ex_manual(delay,kiri,kanan,belakang=0):
 	"""setMotor(kiri,kanan,belakang)
 	time.sleep(delay)
 	stop()"""
-def forward():
-	kirim('LETSGO')
+def forward(inputPesan='LETSMOVE'):
+	applyFormat=FORWARDING_HEADER+str(inputPesan)
+	print(applyFormat)
+	kirim(applyFormat)
 def otomatis():
 	print('startwhile')
 	play=True
