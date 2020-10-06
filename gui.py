@@ -138,8 +138,10 @@ def anotherClient(myid):
 		executeID=1
 	return executeID
 def multi_client(conn,address,myid):
-	conn_client.append(conn)
-	ip_client.append(address)
+	if myid==1:
+		ip_client1.set(ip_client[0])
+	elif myid==2:
+		ip_client2.set(ip_client[1])
 	#
 	addToTerminal(0,f'CLIENT from {address}')
 	if  conn:
@@ -231,6 +233,8 @@ def start_server():
 	DEVICE=0	
 	while True:
 		conn,address= server.accept() 
+		conn_client.append(conn)
+		ip_client.append(address)
 		DEVICE=DEVICE+1
 		print(f"[ACTIVE CONNECTIONS] {DEVICE}")
 		thread = threading.Thread(target=multi_client, args=(conn, address,DEVICE),daemon=True)
