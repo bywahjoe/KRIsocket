@@ -5,7 +5,7 @@ text_command={
 'C4':'wahyu',
 'C5':'wahyu',
 'C6':'retry',
-'C7':'retrycv',
+'C7':'reset',
 'C8':'NULL',
 'C9':'NULL',
 'C10':'NULL',
@@ -24,6 +24,8 @@ text_command={
 'TST8':'NULL',
 'TST9':'NULL',
 'TST10':'NULL',
+'STRGY1':'auto1',
+'STRGY2':'auto2',
 }
 
 #print(text_command.get('TST4'))

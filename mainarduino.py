@@ -116,6 +116,31 @@ def belakang(inputspeed=150):
 		LPWM_BELAKANG.write(0)
 		RPWM_BELAKANG.write(speed)
 	print(speed)
+def rem(varKiri=1,varKanan=1,varBelakang=1):
+	if varKiri==1:
+		EON1_KIRI.write(1)
+		EON2_KIRI.write(1)
+		LPWM_KIRI.write(1)
+		RPWM_KIRI.write(1)
+	else:
+		kiri(0)
+	#
+	if varKanan==1:
+		EON1_KANAN.write(1)
+		EON2_KANAN.write(1)
+		LPWM_KANAN.write(1)
+		RPWM_KANAN.write(1)
+	else:
+		kanan(0)
+	#
+	if varBelakang==1:
+		EON1_BELAKANG.write(1)
+		EON2_BELAKANG.write(1)
+		LPWM_BELAKANG.write(1)
+		RPWM_BELAKANG.write(1)
+	else:
+		belakang(0)
+	print('REM STATUS:',varKiri,varKanan,varBelakang)
 def stop():
 	setMotor()
 def setMotor(motor_kiri=0,motor_kanan=0,motor_belakang=0):
@@ -249,6 +274,7 @@ def openKompas():
 	threadKompas.start()
 #openKompas()
 drible(180)
+#rem(1,1,0)
 """while True:
 	print(getAllMyIR())"""
 resetTendang()

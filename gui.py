@@ -96,12 +96,7 @@ def addToTerminal(myClientID,inputPesan):
 	print(pesanTerminal)
 def sendToClient(myClientID,replace_pesan):
 	conn_client[myClientID].send(bytes(replace_pesan,ENCODING))
-def streamKeyboard():
-	print('ok')
-	topFrame=Toplevel(bg='blue')
-	topFrame.title('Stream Keyboard Mode - WAHJOE LABS')
-	topFrame.geometry('350x350+500+300')
-	
+def oky():
 	while True:
 		mtr='0,0,0'
 		if(keyboard.is_pressed('w')):
@@ -117,10 +112,22 @@ def streamKeyboard():
 			print('d')
 			mtr='45,-45,-20'
 		if(keyboard.is_pressed('x')):
+			print('STOP MANUAL KEYBOARD')
+			notice('MANUAL -- STOP STREAM')
 			break
 		sendStreamKeyboard='KEY,'+mtr
 		sendToClient(0,sendStreamKeyboard)
 		time.sleep(0.2)
+def streamKeyboard():
+	print('ok')
+	topFrame=Toplevel(bg='blue')
+	topFrame.title('Stream Keyboard Mode - WAHJOE LABS')
+	topFrame.geometry('350x350+500+300')
+	notice('PRESS X TO STOP MANUAL')
+	threadk = threading.Thread(target=oky,daemon=True)
+	threadk.start()
+	
+
 def ping_client():
 	isi_pesan='PING'
 	try:
@@ -194,6 +201,11 @@ def multi_send(pesan):
 		addToTerminal(index_client,typePesan+replace_pesan)
 	except Exception as e:
 		fail(e)
+def getStrategy():
+	headerFormatStrategy='STRGY'
+	print(strgy.get())
+	pesan=headerFormatStrategy+str(strgy.get())
+	multi_send(pesan)	
 def send_manual(btn_id):
 	
 	param_up=abs(int(def_pwmup.get()))
@@ -302,8 +314,8 @@ rb4.grid(row=9,column=0,sticky='EW',columnspan=2)
 #CMD
 tro2=Label(window,text='STRATEGY',font='Helvetica 10 bold',bg='#f7bb00')
 tro2.grid(row=11,column=2,sticky='NWNE',columnspan=5)
-st1=Radiobutton(window,text='AUTO',variable=strgy,width=5,height=2,value=1,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
-st2=Radiobutton(window,text='ATTACK',variable=strgy,width=5,height=2,value=2,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
+st1=Radiobutton(window,text='STRATEGY1',variable=strgy,width=5,height=2,value=1,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
+st2=Radiobutton(window,text='STRATEGY2',variable=strgy,width=5,height=2,value=2,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st3=Radiobutton(window,text='DEFEND',variable=strgy,width=5,height=2,value=3,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st4=Radiobutton(window,text='STRIKER 1',variable=strgy,width=5,height=2,value=4,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st5=Radiobutton(window,text='MODECEPAT',variable=strgy,width=5,height=2,value=5,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
@@ -311,7 +323,7 @@ st6=Radiobutton(window,text='TABRAK',variable=strgy,width=5,height=2,value=6,bg=
 st7=Radiobutton(window,text='FULLPOWER',variable=strgy,width=5,height=2,value=7,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st8=Radiobutton(window,text='UMPAN',variable=strgy,width=5,height=2,value=8,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st9=Radiobutton(window,text='AVOIDER',variable=strgy,width=5,height=2,value=9,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
-st10=Radiobutton(window,text='STRATEGY1',variable=strgy,width=5,height=2,value=10,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
+st10=Radiobutton(window,text='STRATEGY6',variable=strgy,width=5,height=2,value=10,bg='black',fg='white',indicatoron=0,selectcolor='red',font='Arial 12 italic bold')
 st1.grid(row=12,column=2,sticky='EW',pady=4,padx=3)
 st2.grid(row=12,column=3,sticky='EW',pady=4,padx=3)
 st3.grid(row=12,column=4,sticky='EW',pady=4,padx=3)
@@ -340,13 +352,13 @@ print('START_DEFAULT_SENDER:',getid.get())
 #
 trn2=Label(window,text='COMMAND STATION',font='Helvetica 10 bold',bg='#f7bb00')
 trn2.grid(row=0,column=7,sticky='EW',columnspan=6,pady=7)
-b1=Button(window,text='AUTO',command=lambda: multi_send('C1'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold',)
+b1=Button(window,text='AUTO',command=getStrategy,width=10,height=2,bg='#1BBC9B',font='Arial 10 bold',)
 b2=Button(window,text='STOP',command=lambda: multi_send('C2'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
 b3=Button(window,text='RETRY',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
 b4=Button(window,text='CORNER',command=lambda: multi_send('C3'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
 b5=Button(window,text='FREE KICK',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
 b6=Button(window,text='RETRY',command=lambda: multi_send('C6'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
-b7=Button(window,text='RE-TRY',command=lambda: multi_send('C7'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
+b7=Button(window,text='RE-STRGY',command=lambda: multi_send('C7'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
 b8=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
 b9=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
 b10=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')

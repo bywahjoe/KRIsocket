@@ -13,7 +13,7 @@ import numpy as np
 import pickle
 
 MODE_ROBOT=1
-
+global statusauto
 PIDX=0
 print('CLIENT VIEW **,CMD PID:',os.getpid())
 hostname = socket.gethostname()
@@ -78,7 +78,7 @@ def forward(inputPesan='LETSMOVE'):
 	applyFormat=FORWARDING_HEADER+str(inputPesan)
 	print(applyFormat)
 	kirim(applyFormat)
-def otomatis():
+def otomatisFormat():
 	print('startwhile')
 	play=True
 	while play:
@@ -86,13 +86,17 @@ def otomatis():
 		try:
 			new_message=client.recv(SIZE).decode(ENCODING)
 			if new_message:
-				if new_message=='auto':
+				if new_message.startswith('auto'):
 					#ResetStep
-					kirim('P:REAUTO')
+					STEP_ROBOT=0
+					kirim('P:REAUTO:'+statusauto)
 					#CODE
 				elif new_message=='retry':
 					#AllMotorStop
-					print('RETRYCV')
+					#print('RETRYCV')
+					stop()
+					resetTendang()
+					STEP_ROBOT=99
 					kirim('P:RETRYCV')
 					#CODE
 				elif new_message=='LETSMOVE':
@@ -100,18 +104,31 @@ def otomatis():
 					print('HANDLE')
 				else:
 					#DESTROYCV
+					print('stopwhile')
 					return new_message
 		except BlockingIOError:
 			pass
 		#print('continue')
-	print('stopwhile')
+def otomatis1():
+	print('otomatis2')
+	return 'ok'	
+def otomatis2():
+	print('otomatis2')
+	return 'ok'
 while True:
 
 	try:
 		terima=client.recv(SIZE).decode(ENCODING)
 		if terima:
-			if terima=='auto':
-				terima=otomatis()
+			if terima.startswith('auto'):
+				global statusauto
+				statusauto=terima
+
+				if(terima=='auto1'):
+					terima=otomatis1()
+				else:
+					terima=otomatis2()
+
 			if terima.startswith('MNL'):
 				terima=terima.upper()
 				print(terima)
