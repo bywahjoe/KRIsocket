@@ -58,6 +58,12 @@ def ex_manual(delay,kiri,kanan,belakang=0):
 	setMotor(kiri,kanan,belakang)
 	time.sleep(delay)
 	stop()
+def getStreamKeyboard(mypesan):
+	new_pesan=mypesan.split(',',4)
+	kiri=int(new_pesan[1])
+	kanan=int(new_pesan[2])
+	belakang=int(new_pesan[3])
+	setMotor(kiri,kanan,belakang)
 def runArduinoCompass():
 
 	#excecute='python serialkompas.py'
@@ -110,6 +116,9 @@ while True:
 				terima=terima.upper()
 				print(terima)
 				get_manual(terima)
+			elif terima.startswith('KEY'):
+				print(terima)
+				getStreamKeyboard(terima)
 			elif terima=='wahyu':
 				kirim('Masuk')
 			elif terima=='testmotor':

@@ -120,8 +120,8 @@ def stop():
 	setMotor()
 def setMotor(motor_kiri=0,motor_kanan=0,motor_belakang=0):
 	kiri(motor_kiri)
-	belakang(motor_belakang)
 	kanan(motor_kanan)
+	belakang(motor_belakang)
 def nonBlockingKicker():
 	print('mulai tendang')
 	PENENDANG.write(1)#AKTIF HIGH

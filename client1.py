@@ -448,7 +448,7 @@ def otomatis():
         try:
             new_message = client.recv(SIZE).decode(ENCODING)
             if new_message:
-                if new_message == 'reauto':
+                if new_message == 'auto':
                     # ResetStep
                     kirim('P:REAUTO')
                     # CODE

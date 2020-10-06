@@ -6,6 +6,7 @@ import datetime
 import queue
 import os
 import tkinter.scrolledtext as listt
+import keyboard
 #import tkinter as tk
 from perintah import *
 from tkinter import *
@@ -95,6 +96,31 @@ def addToTerminal(myClientID,inputPesan):
 	print(pesanTerminal)
 def sendToClient(myClientID,replace_pesan):
 	conn_client[myClientID].send(bytes(replace_pesan,ENCODING))
+def streamKeyboard():
+	print('ok')
+	topFrame=Toplevel(bg='blue')
+	topFrame.title('Stream Keyboard Mode - WAHJOE LABS')
+	topFrame.geometry('350x350+500+300')
+	
+	while True:
+		mtr='0,0,0'
+		if(keyboard.is_pressed('w')):
+			mtr='120,120,0,'
+			print('w')
+		if(keyboard.is_pressed('a')):
+			print('a')
+			mtr='-45,45,20,'
+		if(keyboard.is_pressed('s')):
+			print('s')
+			mtr='-120,-120,0'
+		if(keyboard.is_pressed('d')):
+			print('d')
+			mtr='45,-45,-20'
+		if(keyboard.is_pressed('x')):
+			break
+		sendStreamKeyboard='KEY,'+mtr
+		sendToClient(0,sendStreamKeyboard)
+		time.sleep(0.2)
 def ping_client():
 	isi_pesan='PING'
 	try:
@@ -374,7 +400,8 @@ trpn2=Label(window,text='BELAKANG : ',font='Helvetica 10 bold',bg='#f7bb00')
 trpn2.grid(row=8,column=7,sticky='EW',columnspan=2)
 pwm_blkg=Entry(window,bd=4,width=11,font='Arial 13 bold',textvariable=def_pwmblkg,justify='center')
 pwm_blkg.grid(row=8,column=9)
-
+btn_stream=Button(window,text='KEYBOARD',command=streamKeyboard,width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
+btn_stream.grid(row=8,column=12,sticky='EW')
 
 be1=Button(window,text='UP',width=10,height=2,command=lambda: send_manual(1),bg='green',fg='white')
 be1.grid(row=12,column=10)
