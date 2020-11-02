@@ -120,9 +120,9 @@ def oky():
 		time.sleep(0.2)
 def streamKeyboard():
 	print('ok')
-	topFrame=Toplevel(bg='blue')
-	topFrame.title('Stream Keyboard Mode - WAHJOE LABS')
-	topFrame.geometry('350x350+500+300')
+	#topFrame=Toplevel(bg='blue')
+	#topFrame.title('Stream Keyboard Mode - WAHJOE LABS')
+	#topFrame.geometry('350x350+500+300')
 	notice('PRESS X TO STOP MANUAL')
 	threadk = threading.Thread(target=oky,daemon=True)
 	threadk.start()

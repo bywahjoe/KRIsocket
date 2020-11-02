@@ -274,7 +274,7 @@ def openKompas():
 	threadKompas.start()
 #openKompas()
 drible(180)
-#rem(1,1,0)
+#rem()
 """while True:
 	print(getAllMyIR())"""
 resetTendang()
