@@ -26,6 +26,7 @@ text_command={
 'TST10':'NULL',
 'STRGY1':'auto1',
 'STRGY2':'auto2',
+'STRGY3':'auto3',
 }
 
 #print(text_command.get('TST4'))

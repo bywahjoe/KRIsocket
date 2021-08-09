@@ -6,13 +6,12 @@ import multiprocessing
 from configku import *
 from mainarduino import *
 
-###ADD
+#ADD
 import cv2
 import argparse
 import numpy as np
 import pickle
 
-MODE_ROBOT=1
 global statusauto
 PIDX=0
 print('CLIENT VIEW **,CMD PID:',os.getpid())
@@ -82,11 +81,11 @@ def otomatisFormat():
 	print('startwhile')
 	play=True
 	while play:
-		##CODE
+		##CODE SOCK
 		try:
 			new_message=client.recv(SIZE).decode(ENCODING)
 			if new_message:
-				if new_message.startswith('auto'):
+				if new_message==statusauto:
 					#ResetStep
 					STEP_ROBOT=0
 					kirim('P:REAUTO:'+statusauto)
@@ -99,36 +98,37 @@ def otomatisFormat():
 					STEP_ROBOT=99
 					kirim('P:RETRYCV')
 					#CODE
-				elif new_message=='LETSMOVE':
-					#HANDLE KONDISI SAAT FORWADING
-					print('HANDLE')
 				else:
 					#DESTROYCV
 					print('stopwhile')
+					kirim('P:DESTROYCV')
 					return new_message
 		except BlockingIOError:
 			pass
 		#print('continue')
 def otomatis1():
-	print('otomatis2')
-	return 'ok'	
+	print('UNIT Test : otomatis1')
+	return 'ok1'	
 def otomatis2():
-	print('otomatis2')
-	return 'ok'
+	print('UNIT Test : otomatis2')
+	return 'ok2'
+def otomatis3():
+	print('UNIT Test : otomatis3')
+	return 'ok3'
 while True:
-
 	try:
 		terima=client.recv(SIZE).decode(ENCODING)
 		if terima:
-			if terima.startswith('auto'):
-				global statusauto
+			#MAIN Block
+			if terima.startswith('auto'):			
+				if terima=='auto1':
+					otomatis1()
+				elif terima=='auto2':
+					otomatis2()
+				elif terima=='auto3':
+					otomatis3()
 				statusauto=terima
-
-				if(terima=='auto1'):
-					terima=otomatis1()
-				else:
-					terima=otomatis2()
-
+					
 			if terima.startswith('MNL'):
 				terima=terima.upper()
 				print(terima)

@@ -176,10 +176,12 @@ def tendang(MODE=2):
 	#0=LOW POWER
 	#1=HIGH POWER
 	#2=DEFAULT
+	drible(0)
 	print('\nmulai tendang_',getSelenoidMode())
 	PENENDANG.write(1)#AKTIF HIGH
 	time.sleep(1.5)
 	PENENDANG.write(0)
+	drible(180)
 	#CHANGE MODE
 	modeTendang(MODE)
 def resetTendang(value=0):
@@ -274,10 +276,23 @@ def openKompas():
 	threadKompas.start()
 #openKompas()
 drible(180)
+# modeTendang(1)
+resetTendang()
+# setMotor(150,150,150)
+# while True:
+# 	setMotor(100,100,100)
+# 	time.sleep(5)
+# 	setMotor(-100,-100,-100)
+# 	time.sleep(5)
+#kanan()
+"""while True:
+	time.sleep(10)
+	tendang()"""
+#tendang()
+#modeTendang(1)
 #rem()
 """while True:
 	print(getAllMyIR())"""
-resetTendang()
 #tendang()
 #tendang(1)
 #tendang(0)
@@ -309,9 +324,12 @@ while play:
 		setMotor(100,100,0)"""
 #print(lockTarget())
 #print(destroyTarget())
+
 """while True:
-	tendang()
-	time.sleep(7)"""
+	tendang(1)
+	time.sleep(5)
+	tendang(0)	
+	time.sleep(5)	"""
 """
 while True:
 	getarah=lockTarget(14,198)
