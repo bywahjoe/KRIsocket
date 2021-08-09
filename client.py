@@ -128,7 +128,7 @@ while True:
 				elif terima=='auto3':
 					otomatis3()
 				statusauto=terima
-					
+			#OPTIONAL						
 			if terima.startswith('MNL'):
 				terima=terima.upper()
 				print(terima)
@@ -158,6 +158,7 @@ while True:
 	except BlockingIOError:
 		pass
 	except ConnectionResetError:
+		stop()
 		os.system('taskkill /IM "python.exe" /F')
 	except Exception as e:
 		print(e)
