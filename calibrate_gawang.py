@@ -1,5 +1,5 @@
 # python dynamic_color_tracking.py --filter HSV --webcam
-
+from configku import *
 import cv2
 import argparse
 import numpy as np
@@ -54,7 +54,7 @@ def set_trackbar_values(last_value, filter_name):
 def main():
     # change camera setup here
     filter_name = "Gawang"
-    camera = cv2.VideoCapture(1)
+    camera = cv2.VideoCapture(MAIN_CAMERA,cv2.CAP_DSHOW)
     range_filter = 'HSV'
     setup_trackbars(range_filter, filter_name)
     centerX = 319
@@ -119,6 +119,7 @@ def main():
         # * Ketika Tombol ditekan
         # S untuk save data
         # O untuk load data
+        # r untuk reset
         # esc untuk nutup program
         key = cv2.waitKey(1)
         if key == 27:
@@ -130,7 +131,11 @@ def main():
             data_gawang = pickle.load(open("data_gawang.dat", "rb"))
             print(data_gawang)
             set_trackbar_values(data_gawang, filter_name)
-
+        elif key == 114:
+            # v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus
+            setValue = 0,0,0,255,255,255,80
+            set_trackbar_values(setValue, filter_name)
+            print('succes reset')
 
 if __name__ == '__main__':
     main()

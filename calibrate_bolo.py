@@ -1,5 +1,5 @@
 # python dynamic_color_tracking.py --filter HSV --webcam
-
+from configku import *
 import cv2
 import argparse
 import numpy as np
@@ -55,7 +55,7 @@ def set_trackbar_values(last_value, filter_name):
 def main():
     # change camera setup here
     filter_name = "Bolo"
-    camera = cv2.VideoCapture(1)
+    camera = cv2.VideoCapture(MAIN_CAMERA,cv2.CAP_DSHOW)
     range_filter = 'HSV'
     setup_trackbars(range_filter, "Bolo")
     centerX = 319
@@ -99,6 +99,14 @@ def main():
             ((x, y), radius) = cv2.minEnclosingCircle(c)
             M = cv2.moments(c)
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            boloX = center[0]
+            boloY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((boloX, boloY))
+            jarak_bolo = np.linalg.norm(a-b)
+            jarak_bolo = int(jarak_bolo)
+            print("jarak_bolo = " + str(jarak_bolo))
 
             # only proceed if the radius meets a minimum size
             if radius > 1:
@@ -120,6 +128,7 @@ def main():
         # * Ketika Tombol ditekan
         # S untuk save data
         # O untuk load data
+        # r untuk reset
         # esc untuk nutup program
         key = cv2.waitKey(1)
         if key == 27:
@@ -131,7 +140,11 @@ def main():
             data_bolo = pickle.load(open("data_bolo.dat", "rb"))
             print(data_bolo)
             set_trackbar_values(data_bolo, filter_name)
-
+        elif key == 114:
+            # v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus
+            setValue = 0,0,0,255,255,255,80
+            set_trackbar_values(setValue, filter_name)
+            print('succes reset')
 
 if __name__ == '__main__':
     main()

@@ -1,6 +1,6 @@
 text_command={
 'C1':'auto',
-'C2':'stops',
+'C2':'destroy',
 'C3':'wahyu',
 'C4':'wahyu',
 'C5':'wahyu',

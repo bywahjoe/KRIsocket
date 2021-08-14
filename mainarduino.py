@@ -141,6 +141,10 @@ def rem(varKiri=1,varKanan=1,varBelakang=1):
 	else:
 		belakang(0)
 	print('REM STATUS:',varKiri,varKanan,varBelakang)
+def remDelay(param_delay,varKiri=1,varKanan=1,varBelakang=1):
+	rem(varKiri,varKanan,varBelakang)
+	time.sleep(param_delay)
+	stop()
 def stop():
 	setMotor()
 def setMotor(motor_kiri=0,motor_kanan=0,motor_belakang=0):
@@ -275,6 +279,11 @@ def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
 #openKompas()
+def resetRobot():
+	stop()
+	resetTendang()
+	print('Robot Reset & Release')
+	
 drible(180)
 # modeTendang(1)
 resetTendang()

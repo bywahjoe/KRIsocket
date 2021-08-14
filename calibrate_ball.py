@@ -1,5 +1,5 @@
 # python dynamic_color_tracking.py --filter HSV --webcam
-
+from configku import *
 import cv2
 import argparse
 import numpy as np
@@ -20,6 +20,8 @@ def setup_trackbars(range_filter, filter_name):
             cv2.createTrackbar("%s_%s_%s" %
                                (j, i, filter_name), filter_name + "Trackbars", v, 255, callback)
     cv2.createTrackbar("Focus", filter_name + "Trackbars", 0, 255, callback)
+
+
 
 
 def get_trackbar_values(range_filter, filter_name):
@@ -51,11 +53,10 @@ def set_trackbar_values(last_value, filter_name):
                        filter_name + "Trackbars", v3_max)
     cv2.setTrackbarPos("Focus", filter_name + "Trackbars", focus)
 
-
 def main():
     # change camera setup here
     filter_name = "Ball"
-    camera = cv2.VideoCapture(1)
+    camera = cv2.VideoCapture(MAIN_CAMERA,cv2.CAP_DSHOW)
     range_filter = 'HSV'
     setup_trackbars(range_filter, "Ball")
     centerX = 319
@@ -120,7 +121,6 @@ def main():
                     image, "Ball", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
                 cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
                                                                                10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
-
         # * show the frame to our screen
         cv2.imshow("Original", image)
         cv2.imshow("Mask", maskBall)
@@ -128,6 +128,7 @@ def main():
         # * Ketika Tombol ditekan
         # S untuk save data
         # O untuk load data
+        # r untuk reset
         # esc untuk nutup program
         key = cv2.waitKey(1)
         if key == 27:
@@ -139,7 +140,11 @@ def main():
             data_ball = pickle.load(open("data_ball.dat", "rb"))
             print(data_ball)
             set_trackbar_values(data_ball, filter_name)
-
+        elif key == 114:
+            # v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus
+            setValue = 0,0,0,255,255,255,80
+            set_trackbar_values(setValue, filter_name)
+            print('succes reset')
 
 if __name__ == '__main__':
     main()
