@@ -16,9 +16,13 @@ import pickle
 print('Camera Index Using: ',MAIN_CAMERA)
 camera = cv2.VideoCapture(MAIN_CAMERA,cv2.CAP_DSHOW)
 print(statusauto)
-STEP_ROBOT=0
 
+#Var
+jumpAnotherAuto=False
+STEP_ROBOT = 0
 PIDX=0
+
+#SOCKET
 print('CLIENT VIEW **,CMD PID:',os.getpid())
 hostname = socket.gethostname()
 ip_address = socket.gethostbyname(hostname)
@@ -82,39 +86,54 @@ def forward(inputPesan='LETSMOVE'):
     print(applyFormat)
     kirim(applyFormat)
 
+def checkNewMessageAutoAgain():
+    global statusauto
+    if jumpAnotherAuto:
+        print('wahyu')
+        if statusauto=='auto1':
+            otomatis1()
+        elif terima=='auto2':
+            otomatis2()
+        elif terima=='auto3':
+            otomatis3()
+
 def destroyRobot():
+    global play,STEP_ROBOT
+    play=False
+
     STEP_ROBOT=0
     resetRobot()
     cv2.destroyAllWindows()
     kirim('DESTROYCV->'+statusauto)
-    
-    return statusauto
-
 def retryRobot():
+    global STEP_ROBOT
     STEP_ROBOT=99
+    
     resetRobot()
     kirim('P:RETRYCV')
-
 def playRobot():
+    global STEP_ROBOT
     STEP_ROBOT=0
     kirim('P:REAUTO:'+statusauto)
 
 def refreshServer():
-    global statusauto
+    global statusauto,play,jumpAnotherAuto
     try:
         new_message=client.recv(SIZE).decode(ENCODING)
         if new_message:
             if new_message.startswith('auto'):
                 #ResetStep
-                if(statusauto!=new_message):
+                if(statusauto!=str(new_message)):
                     statusauto=new_message
                     destroyRobot()
+                    jumpAnotherAuto=True                
                 else:
                     playRobot()
             elif new_message=='retry':
                 retryRobot()                
             elif new_message=='destroy':
                 destroyRobot()
+                jumpAnotherAuto=False
             elif new_message=='LETSMOVE':
                 #HANDLE KONDISI SAAT FORWADING
                 print('HANDLE')
@@ -124,6 +143,7 @@ def refreshServer():
     except BlockingIOError:
         pass
 
+    print('startwhile')
 def otomatis1():
     while play:
         camera.set(28, cv2.CAP_PROP_AUTOFOCUS)
@@ -144,22 +164,24 @@ def otomatis3():
     print('UNIT Test : otomatis3')
 
 while True:
+    global play
     try:
         terima=client.recv(SIZE).decode(ENCODING)
         if terima:
             #MAIN Block
             if terima.startswith('auto'):           
                 # global statusauto
+                play=True
                 statusauto=terima
                 print(statusauto)
-
                 if terima=='auto1':
-                    statusauto=otomatis1()
+                    otomatis1()
                 elif terima=='auto2':
-                    statusauto=otomatis2()
+                    otomatis2()
                 elif terima=='auto3':
-                    statusauto=otomatis3()
-                
+                    otomatis3()
+                else:
+                    print('Undefined Auto')
             #OPTIONAL                       
             if terima.startswith('MNL'):
                 terima=terima.upper()

@@ -1,7 +1,7 @@
 #COM & CAMERA
 PYSERIAL_COM='COM5'#KOMPAS
 ARDUINO_COM_PORT='COM4'#FIRMATA
-MAIN_CAMERA=1
+MAIN_CAMERA=2
 
 #SOCKET SETTING
 ENCODING='utf-8'
@@ -13,7 +13,7 @@ global statusauto
 statusauto='Status Auto Not Set,First Run'
 
 global play
-play=False
+play=True
 
 WAIT_SERVER_INPUT=7
 

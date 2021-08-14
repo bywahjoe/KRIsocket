@@ -1,0 +1,538 @@
+import socket
+import time
+import os
+import threading
+import multiprocessing
+from configku import *
+from mainarduino import *
+
+###ADD
+import cv2
+import argparse
+import numpy as np
+import pickle
+
+#CV
+print('Camera Index Using: ',MAIN_CAMERA)
+camera = cv2.VideoCapture(MAIN_CAMERA,cv2.CAP_DSHOW)
+print(statusauto)
+
+#Var
+jumpAnotherAuto=False
+STEP_ROBOT = 0
+PIDX=0
+
+#SOCKET
+print('CLIENT VIEW **,CMD PID:',os.getpid())
+hostname = socket.gethostname()
+ip_address = socket.gethostbyname(hostname)
+print(f"    Computer Name      : {hostname}")
+print(f"    IP Address         : {ip_address}")
+client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((JARINGAN))
+#client.settimeout(0.1)
+client.setblocking(0)
+pesan='1st check'
+
+def testThreadMotor(delay,kiri,kanan,belakang=0):
+    myThread=threading.Thread(target=ex_manual,args=(delay,kiri,kanan,belakang),daemon=True)
+    myThread.start()
+
+def kirim(isi_pesan):
+    isi_pesan=str(isi_pesan)
+    client.send(isi_pesan.encode(ENCODING))
+
+def get_manual(mypesan):
+    paramku=[]
+    seplit=mypesan.split(',')
+    #print(seplit)
+    #0  1     2     3   4
+    #M,DELAY,KIRI,KANAN,BELAKANG
+    paramku.append(int(seplit[1]))
+    paramku.append(int(seplit[2]))
+    paramku.append(int(seplit[3]))
+    paramku.append(int(seplit[4]))
+    #
+    delay=paramku[0]
+    kiri=paramku[1]
+    kanan=paramku[2]
+    blkg=paramku[3]
+
+    print(kiri,kanan,blkg,delay)
+    ex_manual(delay,kiri,kanan,blkg)
+    """
+    setMotor(kiri,kanan)
+    time.sleep(delay)
+    setMotor(0,0,0)"""
+
+def ex_manual(delay,kiri,kanan,belakang=0):
+    setMotor(kiri,kanan,belakang)
+    time.sleep(delay)
+    stop()
+
+def getStreamKeyboard(mypesan):
+    new_pesan=mypesan.split(',',4)
+    kiri=int(new_pesan[1])
+    kanan=int(new_pesan[2])
+    belakang=int(new_pesan[3])
+    setMotor(kiri,kanan,belakang)
+
+def runArduinoCompass():
+
+    #excecute='python serialkompas.py'
+    #runCMD=subprocess.Popen(['python','serialkompas.py'], shell=True)
+    os.system('start /wait cmd /k python serialkompas.py')
+    PIDX=os.getpid()
+    print(PIDX)
+
+"""threadx = threading.Thread(target=runArduinoCompass,daemon=True)
+threadx.start()"""
+def pasTengah(dataX, center,range):
+    if dataX>center-range and dataX<center+range:
+        return True
+    else:
+        return False
+def pasne(dataX, center,range, speed):
+    if pasTengah(dataX, center,range):
+        rem()
+    else:
+        if dataX>center:
+            setMotor(speed,-speed,-speed-5)
+        else:
+            setMotor(-speed,speed,speed+5)
+
+def forward(inputPesan='LETSMOVE'):
+    applyFormat=FORWARDING_HEADER+str(inputPesan)
+    print(applyFormat)
+    kirim(applyFormat)
+
+def checkNewMessageAutoAgain():
+    global statusauto
+    if jumpAnotherAuto:
+        print('wahyu')
+        if statusauto=='auto1':
+            otomatis1()
+        elif terima=='auto2':
+            otomatis2()
+        elif terima=='auto3':
+            otomatis3()
+
+def destroyRobot():
+    global play,STEP_ROBOT
+    play=False
+
+    STEP_ROBOT=0
+    resetRobot()
+    cv2.destroyAllWindows()
+    kirim('DESTROYCV->'+statusauto)
+def retryRobot():
+    global STEP_ROBOT
+    STEP_ROBOT=99
+    
+    resetRobot()
+    kirim('P:RETRYCV')
+def playRobot():
+    global STEP_ROBOT
+    STEP_ROBOT=0
+    kirim('P:REAUTO:'+statusauto)
+
+def refreshServer():
+    global statusauto,play,jumpAnotherAuto
+    try:
+        new_message=client.recv(SIZE).decode(ENCODING)
+        if new_message:
+            if new_message.startswith('auto'):
+                #ResetStep
+                if(statusauto!=str(new_message)):
+                    statusauto=new_message
+                    destroyRobot()
+                    jumpAnotherAuto=True                
+                else:
+                    playRobot()
+            elif new_message=='retry':
+                retryRobot()                
+            elif new_message=='destroy':
+                destroyRobot()
+                jumpAnotherAuto=False
+            elif new_message=='LETSMOVE':
+                #HANDLE KONDISI SAAT FORWADING
+                print('HANDLE')
+            else:
+                print('Undefined Msg')
+                kirim(new_message)
+    except BlockingIOError:
+        pass
+
+    print('startwhile')
+
+data_ball = pickle.load(open("data_ball.dat", "rb"))
+data_bolo = pickle.load(open("data_bolo.dat", "rb"))
+data_gawang = pickle.load(open("data_gawang.dat", "rb"))
+
+# variable konversi
+error = 0
+last_error = 0
+kp = 5
+kd = 20
+SPEED = 110
+max_speed = 120
+
+centerBallX=332
+centerBoloX=327
+centerGawangX=359
+centerGawangO=260
+
+centerX = 320
+centerY = 239
+
+
+def pid(ballX,centerX, last_error, range = 10, current_speed = SPEED):
+    error = konversi(ballX, centerX,range)
+    rate_error = error - last_error
+    last_error = error
+
+    move_value = (error * kp) + (rate_error * kd)
+    move_left = current_speed + move_value
+    move_right = current_speed - move_value
+
+    if move_left > max_speed:
+        move_left = max_speed
+    elif move_left < -max_speed:
+        move_left = -max_speed
+    if move_right < -max_speed:
+        move_right = -max_speed
+    elif move_right > max_speed:
+        move_right = max_speed
+
+    print("move_right" + str(move_right))
+    print("move_left" + str(move_left))
+
+    return [move_left, move_right]
+
+def konversi(ballX,centerX,  range):
+    if ballX > centerX + (range/2):
+        return (ballX - centerX) / 10
+    elif ballX < centerX - (range/2):
+        return ((centerX - ballX) * -1) / 10
+    else:
+        return 0
+def otomatis1():
+    global STEP_ROBOT
+    # * Variable Init
+    is_ball_found = False
+    is_gawang_found = False
+    is_bolo_found = False
+    ballX = 0
+    ballY = 0
+
+    while play:
+        camera.set(28, cv2.CAP_PROP_AUTOFOCUS)
+        ret, image = camera.read()
+        image = cv2.flip(image, 1)
+
+        if not ret:
+            break
+
+        frame_to_thresh = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        kernel = np.ones((5, 5), np.uint8)
+
+        #!---------- PROGRAM CAMERA BALL STARTS HERE ----------
+
+        # * find mask gawang
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_ball
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskBall = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask and initialize the current
+        # (x, y) center of the ball
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # only proceed if at least one contour was found
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            ballX = center[0]
+            ballY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((ballX, ballY))
+            jarak_ball = np.linalg.norm(a-b)
+            jarak_ball = int(jarak_ball)
+            print("jarak_ball = " + str(jarak_ball))
+
+            if radius > 3:
+                is_ball_found = True
+                # draw the circle and centroid on the frame,
+                # then update the list of tracked points
+                cv2.circle(image, (int(x), int(y)),
+                           int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                    image, "Ball", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                               10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_ball_found = False
+
+        #!---------- PROGRAM CAMERA BALL ENDS HERE ----------
+
+        #!---------- PROGRAM CAMERA BOLO STARTS HERE ----------
+        # * find mask bolo
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_bolo
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskBolo = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask bolo
+        # (x, y) center of the bolo
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # * jika countour ditemukan
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+
+            # * EUCLIDEAN BOLO
+            boloX = center[0]
+            boloY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((boloX, boloY))
+            jarak_bolo = np.linalg.norm(a-b)
+            print("jarak_bolo = " + str(int(jarak_bolo)))
+
+
+            # * jika radius lebih dari X
+            if radius > 1:
+                is_bolo_found = True
+
+                #menggambar lingkaran
+                cv2.circle(image, (int(x), int(y)),
+                          int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                   image, "Bolo", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                              10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_bolo_found = False
+
+        #!---------- PROGRAM CAMERA BOLO ENDS HERE ----------
+        #!---------- PROGRAM CAMERA GAWANG STARTS HERE ----------
+
+        # * find mask gawang
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_gawang
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskGawang = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask gawang
+        # (x, y) center of the gawang
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # * jika countour ditemukan
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            gawangX = center[0]
+            gawangY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((gawangX, gawangY))
+            jarak_gawang = np.linalg.norm(a-b)
+            print("jarak_gawang = " + str(int(jarak_gawang)))
+
+            # * jika radius lebih dari X
+            if radius > 7:
+                is_gawang_found = True
+
+                # menggambar lingkaran
+                cv2.circle(image, (int(x), int(y)),
+                           int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                    image, "Gawang", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                               10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_gawang_found = False
+
+        #!---------- PROGRAM CAMERA GAWANG ENDS HERE ----------
+
+        #!---------- PROGRAM ROBOT STARTS HERE ----------
+
+        turn_speed = 150
+        move_speed = 200
+        slow_mode = 30
+        is_ball_catch = getIR() is True
+
+        # * jalankan STEP_ROBOT 0
+        # serong ke kanan
+        if STEP_ROBOT == 0:
+            print('STEP_ROBOT = 0')
+            
+            setMotor(0, 200, -200)
+            time.sleep(2)
+
+            rem()
+            time.sleep(0.1)
+            
+            STEP_ROBOT = 1
+
+        # maju ke bola sampek jarak X
+        elif STEP_ROBOT == 1:
+            print('STEP_ROBOT = 1')
+            move_left, move_right = pid(ballX, centerX, last_error)
+            if is_ball_found:
+                if jarak_ball >= 130:
+                    print('cek sini')
+                    setMotor(move_left, move_right)
+                else:
+                    pasne(ballX,centerBallX,4,23)
+                    if is_ball_catch:
+                        STEP_ROBOT = 2
+                        time.sleep(3)
+
+        elif STEP_ROBOT == 2:
+            if is_bolo_found:
+                if pasTengah(boloX,centerBoloX,4):
+                    tendang()
+                    STEP_ROBOT = 3
+                else :
+                    pasne(boloX,centerBoloX,4,25)
+            else :
+                setMotor(20,-20,-20)
+
+        elif STEP_ROBOT == 3:
+            if is_gawang_found:
+                if pasTengah(gawangX,centerGawangO,5):
+                    setMotor(100,100,0)
+                    time.sleep(1.7)
+
+                    rem()
+                    time.sleep(0.2)
+                    STEP_ROBOT = 4
+                else:
+                    pasne(gawangX,centerGawangO,5,25)
+
+        elif STEP_ROBOT == 4:
+            
+            move_left, move_right = pid(ballX, centerX, last_error)
+            if is_ball_found:
+                if jarak_ball >= 150:
+                    print('cek sini')
+                    setMotor(move_left, move_right)
+                else:
+                    pasne(ballX,centerBallX,4,23)
+                if is_ball_catch:
+                    STEP_ROBOT = 5
+                    time.sleep(0.5)
+
+        elif STEP_ROBOT == 5:
+            if is_gawang_found:
+                if pasTengah(gawangX,centerGawangX,10):
+                    tendang()
+                    STEP_ROBOT = 99
+                else:
+                    pasne(gawangX,centerGawangX,10,25)
+            else:
+                setMotor(20,-20,-20)
+                
+            
+        #!---------- PROGRAM ROBOT ENDS HERE ----------
+
+        # * show the frame to our screen
+        cv2.imshow(statusauto, image)
+       # cv2.imshow("Mask Bolo", maskBolo)
+        cv2.imshow("Mask Ball", maskBall)
+        # ? Ketika Tombol ditekan
+        # esc untuk nutup program
+        
+        refreshServer()
+
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+    checkNewMessageAutoAgain()                                        
+def otomatis2():
+    print('UNIT Test : otomatis2')
+def otomatis3():
+    print('UNIT Test : otomatis3')
+
+while True:
+    global play
+    try:
+        terima=client.recv(SIZE).decode(ENCODING)
+        if terima:
+            #MAIN Block
+            if terima.startswith('auto'):           
+                # global statusauto
+                play=True
+                statusauto=terima
+                print(statusauto)
+                if terima=='auto1':
+                    otomatis1()
+                elif terima=='auto2':
+                    otomatis2()
+                elif terima=='auto3':
+                    otomatis3()
+                else:
+                    print('Undefined Auto')
+            #OPTIONAL                       
+            if terima.startswith('MNL'):
+                terima=terima.upper()
+                print(terima)
+                get_manual(terima)
+            elif terima.startswith('KEY'):
+                print(terima)
+                getStreamKeyboard(terima)
+            elif terima=='wahyu':
+                kirim('Masuk')
+            elif terima=='testmotor':
+                ex_manual(3,150,150,150)
+                ex_manual(3,-150,-150,-150)
+            elif terima=='stops':
+                #oeee=''
+                stop()
+            elif terima=='getir':
+                kirim(getAllMyIR())
+            elif terima=='selenoid':
+                tendang()
+            elif terima=='statusumpan':
+                forward()
+            elif terima=='kompas':
+                kirim(getKompas())
+                print(getKompas())
+            else:
+                print(f"S| {terima} ")
+
+    except BlockingIOError:
+        pass
+    except ConnectionResetError:
+        stop()
+        os.system('taskkill /IM "python.exe" /F')
+    except Exception as e:
+        print(e)
+        pass
