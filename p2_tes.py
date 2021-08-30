@@ -109,12 +109,14 @@ def forward(inputPesan='LETSMOVE'):
 def checkNewMessageAutoAgain():
     global statusauto
     if jumpAnotherAuto:
-        print('wahyu')
         if statusauto=='auto1':
+            print('Go Otomatis1')
             otomatis1()
         elif terima=='auto2':
+            print('Go Otomatis2')
             otomatis2()
         elif terima=='auto3':
+            print('Go Otomatis3')
             otomatis3()
 
 def destroyRobot():
@@ -174,15 +176,15 @@ error = 0
 last_error = 0
 kp = 5
 kd = 20
-SPEED = 110
-max_speed = 120
+SPEED = 80
+max_speed = 80
 
 centerBallX=332
-centerBoloX=327
+centerBoloX=346
 centerGawangX=359
-centerGawangO=260
+centerGawangO=506
 
-centerX = 320
+centerX = 340
 centerY = 239
 
 
@@ -393,7 +395,7 @@ def otomatis1():
         if STEP_ROBOT == 0:
             print('STEP_ROBOT = 0')
             
-            setMotor(0, 200, -200)
+            setMotor(-25, 80, -110)
             time.sleep(2)
 
             rem()
@@ -406,57 +408,59 @@ def otomatis1():
             print('STEP_ROBOT = 1')
             move_left, move_right = pid(ballX, centerX, last_error)
             if is_ball_found:
-                if jarak_ball >= 130:
-                    print('cek sini')
+                if jarak_ball > 150:
                     setMotor(move_left, move_right)
+                elif jarak_ball > 130:
+                    print('cek sini')
+                    setMotor(move_left/1.5, move_right/1.5)
+                elif jarak_ball < 115:
+                    pasne(ballX,centerBallX,3,20)
                 else:
-                    pasne(ballX,centerBallX,4,23)
-                    if is_ball_catch:
-                        STEP_ROBOT = 2
-                        time.sleep(3)
-
+                    rem()
+            if is_ball_catch:
+                STEP_ROBOT = 2
+                remDelay(2)
         elif STEP_ROBOT == 2:
             if is_bolo_found:
-                if pasTengah(boloX,centerBoloX,4):
+                if pasTengah(boloX,centerBoloX,5):
+                    remDelay(0.5)
                     tendang()
                     STEP_ROBOT = 3
                 else :
-                    pasne(boloX,centerBoloX,4,25)
+                    pasne(boloX,centerBoloX,5,20)
             else :
                 setMotor(20,-20,-20)
 
         elif STEP_ROBOT == 3:
             if is_gawang_found:
-                if pasTengah(gawangX,centerGawangO,5):
-                    setMotor(100,100,0)
-                    time.sleep(1.7)
-
-                    rem()
-                    time.sleep(0.2)
+                if pasTengah(gawangX,centerGawangO,3):
+                    setMotor(60,-50,115)
+                    time.sleep(1.2)
+                    remDelay(2)
                     STEP_ROBOT = 4
                 else:
-                    pasne(gawangX,centerGawangO,5,25)
+                    pasne(gawangX,centerGawangO,3,25)
 
         elif STEP_ROBOT == 4:
             
             move_left, move_right = pid(ballX, centerX, last_error)
             if is_ball_found:
-                if jarak_ball >= 150:
+                if jarak_ball > 140:
                     print('cek sini')
                     setMotor(move_left, move_right)
                 else:
                     pasne(ballX,centerBallX,4,23)
-                if is_ball_catch:
-                    STEP_ROBOT = 5
-                    time.sleep(0.5)
+            if is_ball_catch:
+                STEP_ROBOT = 5
+                time.sleep(0.5)
 
         elif STEP_ROBOT == 5:
             if is_gawang_found:
-                if pasTengah(gawangX,centerGawangX,10):
+                if pasTengah(gawangX,centerGawangX,8):
                     tendang()
                     STEP_ROBOT = 99
                 else:
-                    pasne(gawangX,centerGawangX,10,25)
+                    pasne(gawangX,centerGawangX,8,20)
             else:
                 setMotor(20,-20,-20)
                 
@@ -491,15 +495,12 @@ while True:
                 # global statusauto
                 play=True
                 statusauto=terima
-                print(statusauto)
-                if terima=='auto1':
-                    otomatis1()
-                elif terima=='auto2':
-                    otomatis2()
-                elif terima=='auto3':
-                    otomatis3()
-                else:
-                    print('Undefined Auto')
+                jumpAnotherAuto=True
+                while(jumpAnotherAuto):
+                    checkNewMessageAutoAgain()
+                    terima=statusauto
+                    print(' - ' ,statusauto)             
+
             #OPTIONAL                       
             if terima.startswith('MNL'):
                 terima=terima.upper()
