@@ -6,7 +6,7 @@
 
 #RELAY/PENENDANG
 PENENDANG_PIN='d:30:o'
-MODE_PENENDANG_PIN='d:34:o'
+MODE_PENENDANG_PIN='d:36:o'
 #IR
 #	 _2\ 3 /4_
 #  1/	\ /	  \5

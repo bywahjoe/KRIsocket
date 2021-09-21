@@ -1,12 +1,12 @@
 #COM & CAMERA
 PYSERIAL_COM='COM5'#KOMPAS
 ARDUINO_COM_PORT='COM4'#FIRMATA
-MAIN_CAMERA=2
+MAIN_CAMERA=1
 
 #SOCKET SETTING
 ENCODING='utf-8'
 SIZE=1024
-SERVER_IP='192.168.0.3'
+SERVER_IP='192.168.0.2'
 PORT=10061
 
 global statusauto
@@ -14,6 +14,7 @@ statusauto='Status Auto Not Set,First Run'
 
 global play
 play=True
+
 
 WAIT_SERVER_INPUT=7
 

@@ -21,6 +21,10 @@ print(statusauto)
 jumpAnotherAuto=False
 STEP_ROBOT = 0
 PIDX=0
+miss=False
+
+now=time.time()
+before=time.time()
 
 #SOCKET
 print('CLIENT VIEW **,CMD PID:',os.getpid())
@@ -107,15 +111,17 @@ def forward(inputPesan='LETSMOVE'):
     kirim(applyFormat)
 
 def checkNewMessageAutoAgain():
-    global statusauto
+    global statusauto,play,jumpAnotherAuto
     if jumpAnotherAuto:
+        play=True
+        jumpAnotherAuto=True
         if statusauto=='auto1':
             print('Go Otomatis1')
             otomatis1()
-        elif terima=='auto2':
+        elif statusauto=='auto2':
             print('Go Otomatis2')
             otomatis2()
-        elif terima=='auto3':
+        elif statusauto=='auto3':
             print('Go Otomatis3')
             otomatis3()
 
@@ -179,10 +185,11 @@ kd = 20
 SPEED = 80
 max_speed = 80
 
-centerBallX=332
+centerBallX=326
 centerBoloX=346
+centerBoloO=336
 centerGawangX=359
-centerGawangO=506
+centerGawangO=503
 
 centerX = 340
 centerY = 239
@@ -218,7 +225,307 @@ def konversi(ballX,centerX,  range):
         return ((centerX - ballX) * -1) / 10
     else:
         return 0
+def gakenek(timer):
+    global now,before
+
+    now=time.time()
+    var=now-before
+
+    statusIR=getIR is False
+    print("var: ",var)
+    print("Status IR", statusIR)
+
+    if statusIR is False and var>timer:
+        print("MASUK GAKENEK")
+        return True
+    else:
+        return False
 def otomatis1():
+    print("WAHYU")
+
+    global STEP_ROBOT,play,now,before,miss
+    # * Variable Init
+    is_ball_found = False
+    is_gawang_found = False
+    is_bolo_found = False
+    ballX = 0
+    ballY = 0
+
+    while play:
+        print("Masuk While")
+        camera.set(28, cv2.CAP_PROP_AUTOFOCUS)
+        ret, image = camera.read()
+        image = cv2.flip(image, 1)
+
+        if not ret:
+            break
+
+        frame_to_thresh = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        kernel = np.ones((5, 5), np.uint8)
+
+        #!---------- PROGRAM CAMERA BALL STARTS HERE ----------
+
+        # * find mask gawang
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_ball
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskBall = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask and initialize the current
+        # (x, y) center of the ball
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # only proceed if at least one contour was found
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            ballX = center[0]
+            ballY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((ballX, ballY))
+            jarak_ball = np.linalg.norm(a-b)
+            jarak_ball = int(jarak_ball)
+            print("jarak_ball = " + str(jarak_ball))
+
+            if radius > 3:
+                is_ball_found = True
+                # draw the circle and centroid on the frame,
+                # then update the list of tracked points
+                cv2.circle(image, (int(x), int(y)),
+                           int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                    image, "Ball", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                               10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_ball_found = False
+
+        #!---------- PROGRAM CAMERA BALL ENDS HERE ----------
+
+        #!---------- PROGRAM CAMERA BOLO STARTS HERE ----------
+        # * find mask bolo
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_bolo
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskBolo = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask bolo
+        # (x, y) center of the bolo
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # * jika countour ditemukan
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+
+            # * EUCLIDEAN BOLO
+            boloX = center[0]
+            boloY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((boloX, boloY))
+            jarak_bolo = np.linalg.norm(a-b)
+            print("jarak_bolo = " + str(int(jarak_bolo)))
+
+
+            # * jika radius lebih dari X
+            if radius > 1:
+                is_bolo_found = True
+
+                #menggambar lingkaran
+                cv2.circle(image, (int(x), int(y)),
+                          int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                   image, "Bolo", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                              10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_bolo_found = False
+
+        #!---------- PROGRAM CAMERA BOLO ENDS HERE ----------
+        #!---------- PROGRAM CAMERA GAWANG STARTS HERE ----------
+
+        # * find mask gawang
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_gawang
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskGawang = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask gawang
+        # (x, y) center of the gawang
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # * jika countour ditemukan
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            gawangX = center[0]
+            gawangY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((gawangX, gawangY))
+            jarak_gawang = np.linalg.norm(a-b)
+            print("jarak_gawang = " + str(int(jarak_gawang)))
+
+            # * jika radius lebih dari X
+            if radius > 7:
+                is_gawang_found = True
+
+                # menggambar lingkaran
+                cv2.circle(image, (int(x), int(y)),
+                           int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                    image, "Gawang", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                               10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_gawang_found = False
+
+        #!---------- PROGRAM CAMERA GAWANG ENDS HERE ----------
+
+        #!---------- PROGRAM ROBOT STARTS HERE ----------
+
+        turn_speed = 120
+        move_speed = 100
+        slow_mode = 30
+        is_ball_catch = getIR() is True
+
+        # * jalankan STEP_ROBOT 0
+        # serong ke kanan
+        if STEP_ROBOT == 0:
+            print('STEP_ROBOT = 0')
+            
+            setMotor(-25, 80, -110)
+            time.sleep(1.75)
+
+            remDelay(0.2)
+            
+            STEP_ROBOT = 1
+            before=time.time()
+
+        # maju ke bola sampek jarak X
+        elif STEP_ROBOT == 1:
+            print('STEP_ROBOT = 1')
+            move_left, move_right = pid(ballX, centerX, last_error)
+            if is_ball_found:
+                if gakenek(13):
+                    print('gakenek')
+                    setMotor(move_left/1.3, move_right/1.3)
+                    miss=True
+                else:
+                    if jarak_ball > 127:
+                        setMotor(move_left/1.3, move_right/1.3)
+                    else:
+                        pasne(ballX,centerBallX,5,15)
+            if is_ball_catch:
+                rem()
+                if miss:
+                    STEP_ROBOT = 2
+                else:
+                    STEP_ROBOT = 1.5
+                    miss=False              
+        elif STEP_ROBOT==1.5:
+            if is_gawang_found:
+                if pasTengah(gawangX,centerGawangO,3):
+                    remDelay(0.5)
+                    setMotor(50,50,0)
+                    time.sleep(1.8)
+                    STEP_ROBOT=2
+                    remDelay(2)
+                else:
+                    print("PASNE")
+                    pasne(gawangX,centerGawangO,3,15)
+            else:
+                rem()
+        elif STEP_ROBOT == 2:
+            if is_bolo_found:
+                if pasTengah(boloX,centerBoloO,4):
+                    remDelay(0.5)
+                    tendang(1)
+                    STEP_ROBOT = 3
+                else :
+                    pasne(boloX,centerBoloO,4,15)
+            else :
+                setMotor(20,-20,-20)
+
+        elif STEP_ROBOT == 3:
+            if is_gawang_found:
+                if pasTengah(gawangX,centerGawangO,3):
+                    setMotor(80,-25,100)
+                    time.sleep(1.5)
+                    remDelay(2)
+                    STEP_ROBOT = 4
+                else:
+                    pasne(gawangX,centerGawangO,3,15)
+
+        elif STEP_ROBOT == 4:
+            
+            move_left, move_right = pid(ballX, centerX, last_error)
+            if is_ball_found:
+                if pasTengah(ballX,centerBallX,6):
+                    rem()
+                # elif jarak_ball > 50:
+                #     setMotor(move_left, move_right)
+                else:
+                    pasne(ballX,centerBallX,6,15)
+            if is_ball_catch:
+                STEP_ROBOT = 5
+                time.sleep(0.5)
+
+        elif STEP_ROBOT == 5:
+            if is_gawang_found:
+                if pasTengah(gawangX,centerGawangX,8):
+                    remDelay(1)
+                    tendang(0)
+                    STEP_ROBOT = 99
+                else:
+                    pasne(gawangX,centerGawangX,8,15)
+            else:
+                setMotor(20,-20,-20)
+                
+            
+        #!---------- PROGRAM ROBOT ENDS HERE ----------
+
+        # * show the frame to our screen
+        cv2.imshow(statusauto, image)
+        # cv2.imshow("Mask Bolo", maskBolo)
+        # cv2.imshow("Mask Ball", maskBall)
+        # ? Ketika Tombol ditekan
+        # esc untuk nutup program
+    
+        refreshServer()
+
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+    checkNewMessageAutoAgain()                                       
+def otomatis2():
+    print('UNIT Test : otomatis2')
     global STEP_ROBOT
     # * Variable Init
     is_ball_found = False
@@ -385,92 +692,97 @@ def otomatis1():
 
         #!---------- PROGRAM ROBOT STARTS HERE ----------
 
-        turn_speed = 150
-        move_speed = 200
+        turn_speed = 120
+        move_speed = 120
         slow_mode = 30
         is_ball_catch = getIR() is True
 
-        # * jalankan STEP_ROBOT 0
-        # serong ke kanan
-        if STEP_ROBOT == 0:
+        # * jalankan STEP_ROBOT 0        
+        if STEP_ROBOT == 0:#SERONG KIRI
             print('STEP_ROBOT = 0')
             
-            setMotor(-25, 80, -110)
-            time.sleep(2)
+            setMotor(0, 120, -120)
+            time.sleep(1.7)
 
             rem()
             time.sleep(0.1)
             
             STEP_ROBOT = 1
-
-        # maju ke bola sampek jarak X
-        elif STEP_ROBOT == 1:
+      
+        elif STEP_ROBOT == 1:#NGUBER BALL
             print('STEP_ROBOT = 1')
             move_left, move_right = pid(ballX, centerX, last_error)
             if is_ball_found:
-                if jarak_ball > 150:
-                    setMotor(move_left, move_right)
-                elif jarak_ball > 130:
-                    print('cek sini')
-                    setMotor(move_left/1.5, move_right/1.5)
-                elif jarak_ball < 115:
-                    pasne(ballX,centerBallX,3,20)
-                else:
-                    rem()
+                setMotor(move_left, move_right)
+            else:
+                pasne(ballX,centerBallX,4,18)
             if is_ball_catch:
                 STEP_ROBOT = 2
-                remDelay(2)
-        elif STEP_ROBOT == 2:
+
+        elif STEP_ROBOT == 2:#OPER BOLO
+            print('STEP_ROBOT = 2')
             if is_bolo_found:
-                if pasTengah(boloX,centerBoloX,5):
-                    remDelay(0.5)
+                if pasTengah(boloX,centerBoloX,4):
+                    remDelay(2)
                     tendang()
                     STEP_ROBOT = 3
                 else :
-                    pasne(boloX,centerBoloX,5,20)
+                    pasne(boloX,centerBoloX,4,18)
             else :
                 setMotor(20,-20,-20)
 
-        elif STEP_ROBOT == 3:
+        elif STEP_ROBOT == 3:#SERONG KANAN
+            print('STEP_ROBOT = 3')
             if is_gawang_found:
-                if pasTengah(gawangX,centerGawangO,3):
-                    setMotor(60,-50,115)
-                    time.sleep(1.2)
-                    remDelay(2)
+                if pasTengah(gawangX,centerGawangO,4):
+                    setMotor(25,-80,115)
+                    time.sleep(1.3)
+                    remDelay(1)
                     STEP_ROBOT = 4
                 else:
-                    pasne(gawangX,centerGawangO,3,25)
+                    pasne(gawangX,centerGawangO,4,18)
+            else:
+                setMotor(20,-20,-20)
 
-        elif STEP_ROBOT == 4:
-            
+        elif STEP_ROBOT == 4:#NGENTENI OPER
+            print('STEP_ROBOT = 4')
             move_left, move_right = pid(ballX, centerX, last_error)
             if is_ball_found:
-                if jarak_ball > 140:
-                    print('cek sini')
-                    setMotor(move_left, move_right)
-                else:
-                    pasne(ballX,centerBallX,4,23)
-            if is_ball_catch:
+                if jarak_ball > 150:
+                    if pasTengah(ballX,centerBallX,4):
+                        remDelay(1)
+                        setMotor(move_left, move_right)
+                    else:
+                        pasne(ballX,centerBallX,4,18)
+            elif is_ball_catch:
+                remDelay(1)
                 STEP_ROBOT = 5
-                time.sleep(0.5)
+            else:
+                setMotor(20,-20,-20)
 
-        elif STEP_ROBOT == 5:
-            if is_gawang_found:
-                if pasTengah(gawangX,centerGawangX,8):
+        elif STEP_ROBOT == 5:#OPER BOLO
+            print('STEP_ROBOT = 5')
+            if is_bolo_found:
+                if pasTengah(boloX,centerBoloX,5):
+                    remDelay(2)
                     tendang()
                     STEP_ROBOT = 99
                 else:
-                    pasne(gawangX,centerGawangX,8,20)
+                    pasne(boloX,centerBoloX,5,18)
             else:
                 setMotor(20,-20,-20)
+        
+        elif STEP_ROBOT == 99:
+            print('STEP_ROBOT = 99')
+            stop()
                 
             
         #!---------- PROGRAM ROBOT ENDS HERE ----------
 
         # * show the frame to our screen
         cv2.imshow(statusauto, image)
-       # cv2.imshow("Mask Bolo", maskBolo)
-        cv2.imshow("Mask Ball", maskBall)
+        #cv2.imshow("Mask Bolo", maskBolo)
+        #cv2.imshow("Mask Ball", maskBall)
         # ? Ketika Tombol ditekan
         # esc untuk nutup program
         
@@ -479,14 +791,245 @@ def otomatis1():
         key = cv2.waitKey(1)
         if key == 27:
             break
-    checkNewMessageAutoAgain()                                        
-def otomatis2():
-    print('UNIT Test : otomatis2')
+    checkNewMessageAutoAgain()
+
 def otomatis3():
     print('UNIT Test : otomatis3')
+    global STEP_ROBOT
+    # * Variable Init
+    is_ball_found = False
+    is_gawang_found = False
+    is_bolo_found = False
+    ballX = 0
+    ballY = 0
+
+    while play:
+        camera.set(28, cv2.CAP_PROP_AUTOFOCUS)
+        ret, image = camera.read()
+        image = cv2.flip(image, 1)
+
+        if not ret:
+            break
+
+        frame_to_thresh = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        kernel = np.ones((5, 5), np.uint8)
+
+        #!---------- PROGRAM CAMERA BALL STARTS HERE ----------
+
+        # * find mask gawang
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_ball
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskBall = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask and initialize the current
+        # (x, y) center of the ball
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # only proceed if at least one contour was found
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            ballX = center[0]
+            ballY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((ballX, ballY))
+            jarak_ball = np.linalg.norm(a-b)
+            jarak_ball = int(jarak_ball)
+            print("jarak_ball = " + str(jarak_ball))
+
+            if radius > 3:
+                is_ball_found = True
+                # draw the circle and centroid on the frame,
+                # then update the list of tracked points
+                cv2.circle(image, (int(x), int(y)),
+                           int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                    image, "Ball", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                               10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_ball_found = False
+
+        #!---------- PROGRAM CAMERA BALL ENDS HERE ----------
+
+        #!---------- PROGRAM CAMERA BOLO STARTS HERE ----------
+        # * find mask bolo
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_bolo
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskBolo = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask bolo
+        # (x, y) center of the bolo
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # * jika countour ditemukan
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+
+            # * EUCLIDEAN BOLO
+            boloX = center[0]
+            boloY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((boloX, boloY))
+            jarak_bolo = np.linalg.norm(a-b)
+            print("jarak_bolo = " + str(int(jarak_bolo)))
+
+
+            # * jika radius lebih dari X
+            if radius > 1:
+                is_bolo_found = True
+
+                #menggambar lingkaran
+                cv2.circle(image, (int(x), int(y)),
+                          int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                   image, "Bolo", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                              10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_bolo_found = False
+
+        #!---------- PROGRAM CAMERA BOLO ENDS HERE ----------
+        #!---------- PROGRAM CAMERA GAWANG STARTS HERE ----------
+
+        # * find mask gawang
+        v1_min, v2_min, v3_min, v1_max, v2_max, v3_max, focus = data_gawang
+
+        thresh = cv2.inRange(
+            frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+
+        mask = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        maskGawang = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+        # * find contours in the mask gawang
+        # (x, y) center of the gawang
+        cnts = cv2.findContours(
+            mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        center = None
+
+        # * jika countour ditemukan
+        if len(cnts) > 0:
+            c = max(cnts, key=cv2.contourArea)
+            ((x, y), radius) = cv2.minEnclosingCircle(c)
+            M = cv2.moments(c)
+            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            gawangX = center[0]
+            gawangY = center[1]
+
+            a = np.array((centerX, centerY))
+            b = np.array((gawangX, gawangY))
+            jarak_gawang = np.linalg.norm(a-b)
+            print("jarak_gawang = " + str(int(jarak_gawang)))
+
+            # * jika radius lebih dari X
+            if radius > 7:
+                is_gawang_found = True
+
+                # menggambar lingkaran
+                cv2.circle(image, (int(x), int(y)),
+                           int(radius), (0, 255, 255), 2)
+                cv2.circle(image, center, 3, (0, 0, 255), -1)
+                cv2.putText(
+                    image, "Gawang", (center[0]+10, center[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+                cv2.putText(image, "("+str(center[0])+","+str(center[1])+")", (center[0] +
+                                                                               10, center[1]+15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+            else:
+                is_gawang_found = False
+
+        #!---------- PROGRAM CAMERA GAWANG ENDS HERE ----------
+
+        #!---------- PROGRAM ROBOT STARTS HERE ----------
+
+        turn_speed = 120
+        move_speed = 120
+        slow_mode = 30
+        is_ball_catch = getIR() is True
+
+        # * jalankan STEP_ROBOT 0        
+        if STEP_ROBOT == 0:#
+            print('STEP_ROBOT = 0')
+            if is_ball_found:
+                if pasTengah(ballX,centerBallX,3):
+                    rem()
+                else:
+                    pasne(ballX,centerBallX,3,18)
+            if is_ball_catch:
+                rem()
+                STEP_ROBOT = 1
+            else:
+                move_left, move_right = pid(ballX, centerX, last_error)
+                if is_ball_found:
+                    if pasTengah(ballX,centerBallX,3):
+                        setMotor(move_left,move_right)
+                    else:
+                        pasne(ballX,centerBallX,3,18)
+
+        elif STEP_ROBOT == 1:#
+            print('STEP_ROBOT = 1')
+            if is_bolo_found:
+                if pasTengah(boloX,centerBoloX,3):
+                    remDelay(1)
+                    tendang()
+                else:
+                    pasne(boloX,centerBoloX,3,18)
+            else:
+                setMotor(20,-20,-20)
+
+        elif STEP_ROBOT == 2:#
+            print('STEP_ROBOT = 2')
+
+        elif STEP_ROBOT == 3:#
+            print('STEP_ROBOT = 3')
+
+        elif STEP_ROBOT == 4:#
+            print('STEP_ROBOT = 4')
+
+        elif STEP_ROBOT == 5:#
+            print('STEP_ROBOT = 5')
+        
+        elif STEP_ROBOT == 99:
+            print('STEP_ROBOT = 99')
+            stop()
+                            
+        #!---------- PROGRAM ROBOT ENDS HERE ----------
+
+        # * show the frame to our screen
+        cv2.imshow(statusauto, image)
+        #cv2.imshow("Mask Bolo", maskBolo)
+        #cv2.imshow("Mask Ball", maskBall)
+        # ? Ketika Tombol ditekan
+        # esc untuk nutup program
+        
+        refreshServer()
+
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+    checkNewMessageAutoAgain()
 
 while True:
-    global play
+    # global play
     try:
         terima=client.recv(SIZE).decode(ENCODING)
         if terima:

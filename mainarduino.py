@@ -284,7 +284,7 @@ def resetRobot():
 	resetTendang()
 	print('Robot Reset & Release')
 	
-drible(180)
+drible(200)
 # modeTendang(1)
 resetTendang()
 # setMotor(150,150,150)
@@ -347,3 +347,7 @@ while True:
 		tendang()
 		break
 	setMotor(50,-50,-50)"""
+
+# setMotor(80,-25,100)
+# time.sleep(1)
+# remDelay(1)
