@@ -286,6 +286,7 @@ def resetRobot():
 	
 drible(200)
 # modeTendang(1)
+# time.sleep(7)
 resetTendang()
 # setMotor(150,150,150)
 # while True:
@@ -348,6 +349,6 @@ while True:
 		break
 	setMotor(50,-50,-50)"""
 
-# setMotor(80,-25,100)
+# setMotor(30,-70,100)
 # time.sleep(1)
 # remDelay(1)

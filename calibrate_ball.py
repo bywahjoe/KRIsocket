@@ -5,10 +5,8 @@ import argparse
 import numpy as np
 import pickle
 
-
 def callback(value):
     pass
-
 
 def setup_trackbars(range_filter, filter_name):
     cv2.namedWindow(filter_name + "Trackbars", 0)
