@@ -349,6 +349,6 @@ while True:
 		break
 	setMotor(50,-50,-50)"""
 
-# setMotor(30,-70,100)
-# time.sleep(1)
+# setMotor(70,-25,120)
+# time.sleep(1.2)
 # remDelay(1)
