@@ -194,9 +194,9 @@ kd = 20
 SPEED = 80
 max_speed = 80
 
-centerBallX=322
+centerBallX=324
 centerBoloX=346
-centerBoloO=330
+centerBoloO=326
 centerGawangX=359
 centerGawangT=325
 centerGawangO=503
@@ -262,10 +262,12 @@ def otomatis1():
     is_bolo_found = False
     ballX = 0
     ballY = 0
+    boloX,boloY=0,0
+    centerPasGawang=506
 
     while play:
         print("Masuk While")
-        camera.set(28, cv2.CAP_PROP_AUTOFOCUS)
+        camera.set(cv2.CAP_PROP_AUTOFOCUS, 0)
         ret, image = camera.read()
         image = cv2.flip(image, 1)
 
@@ -451,7 +453,7 @@ def otomatis1():
                     setMotor(move_left/1.3, move_right/1.3)
                     miss=True
                 else:
-                    if jarak_ball > 127:
+                    if jarak_ball > 126:
                         setMotor(move_left/1.3, move_right/1.3)
                     else:
                         pasne(ballX,centerBallX,5,14)
@@ -468,11 +470,11 @@ def otomatis1():
                 if pasTengah(gawangX,gawangDummy2,3):
                     remDelay(1.5)
 
-                    setMotor(50,30,0)
-                    time.sleep(1.75)
+                    setMotor(50,45,0)
+                    time.sleep(1.85)
                     STEP_ROBOT=2
-                    before=time.time()
                     remDelay(2)
+                    before=time.time()
                 else:
                     print("PASNE")
                     pasne(gawangX,gawangDummy2,3,15)
@@ -482,29 +484,30 @@ def otomatis1():
                 setMotor(15,15,0)
 
         elif STEP_ROBOT == 2:
+            now=time.time()
             if is_bolo_found:
                 if now-before>=3:
-                    if pasTengah(boloX,centerBoloO,4):
+                    if pasTengah(boloX,centerBoloO,5):
                         rem()
                         tendang(1)
                         STEP_ROBOT = 3
                     else:
-                        pasne(boloX,centerBoloO,4,15)
+                        pasne(boloX,centerBoloO,5,13)
                 else:
-                    pasne(boloX,centerBoloO,4,15)
+                    pasne(boloX,centerBoloO,5,13)
             else :
                 setMotor(20,-20,-20)
 
         elif STEP_ROBOT == 3:
             if is_gawang_found:
-                if pasTengah(gawangX,centerGawangO,3):
+                if pasTengah(gawangX,centerPasGawang,3):
                     setMotor(25,-70,110)
                     time.sleep(1.5)
                     remDelay(2)
                     STEP_ROBOT = 4
                     before=time.time()
                 else:
-                    pasne(gawangX,centerGawangO,3,15)
+                    pasne(gawangX,centerPasGawang,3,15)
 
         elif STEP_ROBOT == 4:
             
@@ -522,7 +525,7 @@ def otomatis1():
             if is_ball_catch:
                 STEP_ROBOT = 5
                 remDelay(1)
-                setMotor(25,-70,120)
+                setMotor(25,-65,110)
                 time.sleep(1.2)
                 rem()
 
@@ -570,7 +573,7 @@ def otomatis2():
     # STEP_ROBOT=3.5
     # before=time.time()
     while play:
-        camera.set(28, cv2.CAP_PROP_AUTOFOCUS)
+        camera.set(cv2.CAP_PROP_AUTOFOCUS, 0)
         ret, image = camera.read()
         image = cv2.flip(image, 1)
 
@@ -801,7 +804,7 @@ def otomatis2():
                         rem()
                         tendang()
                         STEP_ROBOT=99
-                        setMotor(25,-65,110)
+                        setMotor(25,-70,110)
                         time.sleep(1.2)
                         rem()
                     else:
@@ -829,16 +832,24 @@ def otomatis2():
 
 def otomatis3():
     print('UNIT Test : otomatis3')
-    global STEP_ROBOT
+    global STEP_ROBOT,play,now,before,miss
     # * Variable Init
     is_ball_found = False
     is_gawang_found = False
     is_bolo_found = False
     ballX = 0
     ballY = 0
-
+    pas=0
+    boloX=0
+    posTendang=380
+    operCorner=323
+    tendangGol=323
+    lurusneBall=220
+    centerOperBolo1=338 #oper awa
+    centerBalikOper=315
+       
     while play:
-        camera.set(28, cv2.CAP_PROP_AUTOFOCUS)
+        camera.set(cv2.CAP_PROP_AUTOFOCUS, 0)
         ret, image = camera.read()
         image = cv2.flip(image, 1)
 
@@ -1003,45 +1014,88 @@ def otomatis3():
         # * jalankan STEP_ROBOT 0        
         if STEP_ROBOT == 0:#
             print('STEP_ROBOT = 0')
+            left,right=pid(ballX,centerX,last_error)
             if is_ball_found:
-                if pasTengah(ballX,centerBallX,3):
-                    rem()
-                else:
-                    pasne(ballX,centerBallX,3,18)
+                setMotor(left/1.5,right/1.5)
             if is_ball_catch:
                 rem()
                 STEP_ROBOT = 1
-            else:
-                move_left, move_right = pid(ballX, centerX, last_error)
-                if is_ball_found:
-                    if pasTengah(ballX,centerBallX,3):
-                        setMotor(move_left,move_right)
-                    else:
-                        pasne(ballX,centerBallX,3,18)
+                before=time.time()
 
         elif STEP_ROBOT == 1:#
+            now=time.time()
             print('STEP_ROBOT = 1')
-            if is_bolo_found:
-                if pasTengah(boloX,centerBoloX,3):
-                    remDelay(1)
-                    tendang()
+            if now-before>=3:
+                if is_bolo_found:
+                    if pasTengah(boloX,centerOperBolo1,4):
+                        remDelay(1)
+                        tendang()
+                        STEP_ROBOT = 2
+                    else:
+                        pasne(boloX,centerOperBolo1,4,14)
                 else:
-                    pasne(boloX,centerBoloX,3,18)
+                    rem()
             else:
-                setMotor(20,-20,-20)
+                pasne(boloX,centerOperBolo1,4,14)
 
         elif STEP_ROBOT == 2:#
             print('STEP_ROBOT = 2')
-
-        elif STEP_ROBOT == 3:#
-            print('STEP_ROBOT = 3')
-
-        elif STEP_ROBOT == 4:#
-            print('STEP_ROBOT = 4')
-
-        elif STEP_ROBOT == 5:#
-            print('STEP_ROBOT = 5')
+            setMotor(-25,80,-110)
+            time.sleep(1.2)
+            remDelay(0.5)
+            STEP_ROBOT=2.5
+            
         
+        elif STEP_ROBOT==2.5:
+            setMotor(30,40,0)
+            time.sleep(1.3)
+            rem()
+            STEP_ROBOT=3
+            before=time.time()
+
+        elif STEP_ROBOT == 3:#nuggu oper
+            now=time.time()
+            print('STEP_ROBOT = 3')
+            if is_ball_found:
+                if now-before>=2:
+                    if pasTengah(ballX,operCorner,4):
+                        rem()
+                    else:
+                        pasne(ballX,operCorner,4,14)
+            if is_ball_catch:
+                rem()
+                setMotor()
+                STEP_ROBOT=4
+
+        elif STEP_ROBOT==4: #aBalik oper, kabur
+            now=time.time()
+            print('STEP_ROBOT = 4')
+            if is_gawang_found:
+                setMotor(-15,15,15)
+                if gawangX<230:
+                    remDelay(1)
+                    setMotor(-25,70,-100)
+                    time.sleep(1.7)
+                    remDelay(1)
+                    setMotor(50,70,0)
+                    time.sleep(1.5)
+                    rem()
+                    STEP_ROBOT=5
+                    before=time.time()
+
+        elif STEP_ROBOT==5:
+            now=time.time()
+            if is_gawang_found:
+                if now-before>=3:
+                    if pasTengah(gawangX,tendangGol,5):
+                        rem()
+                        tendang()
+                        STEP_ROBOT=99
+                    else:
+                        pasne(gawangX,tendangGol,5,15)
+            else:
+                pasne(gawangX,tendangGol,5,15)
+
         elif STEP_ROBOT == 99:
             print('STEP_ROBOT = 99')
             stop()
@@ -1060,7 +1114,6 @@ def otomatis3():
         key = cv2.waitKey(1)
         if key == 27:
             break
-    checkNewMessageAutoAgain()
 
 while True:
     # global play

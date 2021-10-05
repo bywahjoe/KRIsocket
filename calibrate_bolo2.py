@@ -135,9 +135,9 @@ def main():
             break
         elif key == 115:
             pickle.dump(get_trackbar_values(range_filter, filter_name),
-                        open("data_bolo.dat", "wb"))
+                        open("data_bolo2.dat", "wb"))
         elif key == 111:
-            data_bolo = pickle.load(open("data_bolo.dat", "rb"))
+            data_bolo = pickle.load(open("data_bolo2.dat", "rb"))
             print(data_bolo)
             set_trackbar_values(data_bolo, filter_name)
         elif key == 114:

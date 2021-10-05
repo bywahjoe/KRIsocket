@@ -5,3 +5,5 @@ ts.py
 ts2.py
 kompaslog.txt
 *.docx
+*.tmp
+pot.py
