@@ -4,6 +4,7 @@ import os
 import threading
 from ardupin import *
 from configku import *
+from megaserial import *
 
 board = pyfirmata.ArduinoMega(ARDUINO_COM_PORT)
 #board = pyfirmata.Arduino('COM3')
@@ -224,7 +225,7 @@ def getAllMyIR():
 def fileKompasNotEmpty():
 	get_status=os.stat(FILE_KOMPAS).st_size>0
 	return get_status
-def getKompas(index=0):
+def getKompasDeprecated(index=0):
 	#HEADING1,HEADING2,TIMELOG
 	batasError=0
 	while True:
@@ -352,3 +353,17 @@ while True:
 # setMotor(-20,70,-100)
 # time.sleep(1.2)
 # remDelay(1)
+
+"""while True:
+	setMotor(200,200)
+	vL=getRotateL()
+	vR=getRotateR()
+	print('ENCO: ',vL,' ',vR)
+	while(getRotateL()<10 or getRotateL()<10 ):
+		setMotor(200,200)
+	rem()
+	time.sleep(2)
+	while(getRotateL()>=0 or getRotateL()>=0 ):
+		setMotor(-200,-200)
+	rem()
+	time.sleep(2)"""
