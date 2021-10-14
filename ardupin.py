@@ -4,6 +4,8 @@
 #i=input
 #p=pwm
 
+BUZZ_PIN='d:38:o'
+
 #RELAY/PENENDANG
 PENENDANG_PIN='d:30:o'
 MODE_PENENDANG_PIN='d:36:o'

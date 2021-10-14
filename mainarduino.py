@@ -39,9 +39,14 @@ RPWM_KIRI=board.get_pin(RPWM_KIRI_PIN)
 LPWM_KIRI=board.get_pin(LPWM_KIRI_PIN)
 EON1_KIRI=board.get_pin(EON1_KIRI_PIN)
 EON2_KIRI=board.get_pin(EON2_KIRI_PIN)
+BUZZ=board.get_pin(BUZZ_PIN)
 ##
 modeSelenoid=0
 ##
+def buzzON():
+	BUZZ.write(1)
+def buzzOFF():
+	BUZZ.write(0)
 def customThread(fungsiThread):
 	myThread=threading.Thread(target=fungsiThread,daemon=True)
 	myThread.start()
@@ -367,3 +372,5 @@ while True:
 		setMotor(-200,-200)
 	rem()
 	time.sleep(2)"""
+
+a,b,c,d,e=getSerial()
