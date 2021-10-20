@@ -25,7 +25,7 @@ miss=False
 
 now=time.time()
 before=time.time()
-
+lastL,lastR=0,0
 #SOCKET
 print('CLIENT VIEW **,CMD PID:',os.getpid())
 hostname = socket.gethostname()
@@ -194,16 +194,15 @@ kd = 20
 SPEED = 80
 max_speed = 80
 
-centerBallX=324
+centerBallX=322
 centerBoloX=346
-centerBoloO=326
 centerGawangX=359
 centerGawangT=325
 centerGawangO=503
 gawangDummy2=504
 gawangTendang1=328
 gawangTendang2=350
-centerX = 340
+centerX = 331
 centerY = 239
 
 
@@ -237,6 +236,18 @@ def konversi(ballX,centerX,  range):
         return ((centerX - ballX) * -1) / 10
     else:
         return 0
+def saveLast():
+    global lastL,lastR
+
+    lastL=getRotateL()
+    lastR=getRotateR()
+def pasKompas(sudut,range):
+    kom=getKompas()
+    if kom<=sudut+range and kom>=sudut-range:
+        return True
+    else:
+        return False
+        
 def gakenek(timer):
     global now,before
 
@@ -252,10 +263,82 @@ def gakenek(timer):
         return True
     else:
         return False
+"""def getKompas():
+    return 1
+def getRotateL():
+    return 2
+def getRotateR():
+    return 8
+def getPulseL():
+    return 4
+def getPulseR():
+    return 5
+def getSerial():
+    return 6,7,8,9,0"""
+
+####################################
+from struct import *
+import serial
+import threading
+
+
+ser = serial.Serial(PYSERIAL_COM,baudrate=BAUDRATE)
+# ser.reset_output_buffer()
+
+# ok=b'\x05\x00\x00\x00\x07\x00\x00\x00'
+# print(unpack('ii',ok))
+
+myKompas,rotateL,rotateR,pulseL,pulseR=0,0,0,0,0
+def readSerial():
+    global myKompas,rotateL,rotateR,pulseL,pulseR
+    while True:
+        recv=ser.read(20)
+        # recv=ser.readline()
+        # ok=len(recv)
+        print(repr(recv))
+        # print(len(recv),' bytes')
+        if(len(recv)>4):
+            unpacked = unpack('iiill', recv)
+            print(unpacked)
+            myKompas,rotateL,rotateR,pulseL,pulseR=unpacked
+            # myKompas=unpacked[0]
+            # rotateL=unpacked[1]
+            # rotateR=unpacked[2]
+            # pulseL=unpacked[3]
+            # pulseR=unpacked[4]
+
+            # print(type(unpacked[0]))
+            # print(type(unpacked[1]))
+            # print(type(unpacked[2]))
+            # print(type(unpacked[3]))
+            # print(type(unpacked[4]))
+            # print(mykompas)
+
+#THREAD TEST!!
+x = threading.Thread(target=readSerial,daemon=True)
+x.start()
+###########################################
+def getKompas():
+    return myKompas
+def getRotateL():
+    return rotateL
+def getRotateR():
+    return rotateR
+def getPulseL():
+    return pulseL
+def getPulseR():
+    return pulseR
+def getSerial():
+    return myKompas,rotateL,rotateR,pulseL,pulseR
+
+print('Load Serial.....')
+
+
+
 def otomatis1():
     print("START")
 
-    global STEP_ROBOT,play,now,before,miss
+    global STEP_ROBOT,play,now,before,miss,lastL,lastR
     # * Variable Init
     is_ball_found = False
     is_gawang_found = False
@@ -264,6 +347,7 @@ def otomatis1():
     ballY = 0
     boloX,boloY=0,0
     centerPasGawang=506
+    centerBoloO=333
 
     while play:
         print("Masuk While")
@@ -424,64 +508,65 @@ def otomatis1():
 
         #!---------- PROGRAM ROBOT STARTS HERE ----------
 
-        turn_speed = 120
-        move_speed = 100
-        slow_mode = 30
         is_ball_catch = getIR() is True
 
         # * jalankan STEP_ROBOT 0
         # serong ke kanan
         if STEP_ROBOT == 0:
-            miss=False
             print('STEP_ROBOT = 0')
-            
-            setMotor(-25, 80, -110)
-            time.sleep(1.95)
-
-            remDelay(0.2)
-            
-            STEP_ROBOT = 1
-            before=time.time()
-
+            # setMotor(-25, 85,-120)
+            print("ROOOO : ",type(getRotateR()))        
+            # breakpoint()
+            if getRotateR()<= (lastR-4):
+                remDelay(0.5)          
+                STEP_ROBOT = 1
+                before=time.time()
+                saveLast()
+            else:
+                setMotor(-25, 85,-120)        
         # maju ke bola sampek jarak X
         elif STEP_ROBOT == 1:
+
             print('STEP_ROBOT = 1')
             move_left, move_right = pid(ballX, centerX, last_error)
             if is_ball_found:
-                if gakenek(13):
+                if gakenek(10):
                     print('gakenek')
                     setMotor(move_left/1.3, move_right/1.3)
                     miss=True
                 else:
-                    if jarak_ball > 126:
+                    if jarak_ball > 85:
                         setMotor(move_left/1.3, move_right/1.3)
                     else:
-                        pasne(ballX,centerBallX,5,14)
+                        pasne(ballX,centerBallX,5,13)
             if is_ball_catch:
                 rem()
                 if miss:
                     STEP_ROBOT = 2
+                    before=time.time()
+                 
                 else:
                     STEP_ROBOT = 1.5
                     miss=False              
-        
+                    time.sleep(2)
         elif STEP_ROBOT==1.5:
-            if is_gawang_found:
-                if pasTengah(gawangX,gawangDummy2,3):
-                    remDelay(1.5)
-
-                    setMotor(50,45,0)
-                    time.sleep(1.85)
-                    STEP_ROBOT=2
-                    remDelay(2)
-                    before=time.time()
-                else:
-                    print("PASNE")
-                    pasne(gawangX,gawangDummy2,3,15)
-            else:
-                rem()
-                is_gawang_found=False
-                setMotor(15,15,0)
+            # if is_gawang_found:
+                # if pasTengah(gawangX,gawangDummy2,3):
+                    # remDelay(1.5)
+            setMotor(20,-20,-20)
+            if pasKompas(212,4):
+                setMotor(50,50,0)
+                time.sleep(1.85)
+                STEP_ROBOT=2
+                remDelay(2)
+                before=time.time()
+            #     else:
+            #         print("PASNE")
+            #         pasne(gawangX,gawangDummy2,3,15)
+            # else:
+            #     rem()
+            #     is_gawang_found=False
+            #     setMotor(15,15,0)
 
         elif STEP_ROBOT == 2:
             now=time.time()
@@ -496,21 +581,29 @@ def otomatis1():
                 else:
                     pasne(boloX,centerBoloO,5,13)
             else :
-                setMotor(20,-20,-20)
+                setMotor(15,-15,-15)
 
         elif STEP_ROBOT == 3:
-            if is_gawang_found:
-                if pasTengah(gawangX,centerPasGawang,3):
-                    setMotor(25,-70,110)
-                    time.sleep(1.5)
-                    remDelay(2)
-                    STEP_ROBOT = 4
-                    before=time.time()
-                else:
-                    pasne(gawangX,centerPasGawang,3,15)
+            # if is_gawang_found:
+                # if pasTengah(gawangX,centerPasGawang,3):      
+            setMotor(-20,20,20)
+            if pasKompas(217,3):
+                rem()
+                    # time.sleep(1.5)
+                    # remDelay(2)
+                STEP_ROBOT = 3.5
+                saveLast()
+            # else:
+            #     pasne(gawangX,centerPasGawang,3,15)
+        elif STEP_ROBOT == 3.5:
+            setMotor(25,-80,120)
+            if getRotateR()>=lastR+3:
+                rem()
+                STEP_ROBOT=4
+                before=time.time()
+                saveLast()
 
         elif STEP_ROBOT == 4:
-            
             move_left, move_right = pid(ballX, centerX, last_error)
             if is_ball_found:
                 if gakenek(7):
@@ -523,23 +616,35 @@ def otomatis1():
                     else:
                         pasne(ballX,centerBallX,5,15)
             if is_ball_catch:
-                STEP_ROBOT = 5
-                remDelay(1)
-                setMotor(25,-65,110)
-                time.sleep(1.2)
+                STEP_ROBOT = 4.5
+
+        elif STEP_ROBOT == 4.5:
+            setMotor(20,-20,-20)
+            if pasKompas(206,4):
                 rem()
+                STEP_ROBOT=5
+                saveLast()
 
         elif STEP_ROBOT == 5:
+            setMotor(30,-80,130)
+            if getRotateR()>=lastR+2:
+                rem()
+                STEP_ROBOT=6
+            
+        elif STEP_ROBOT == 6:    
             if is_gawang_found:
                 if pasTengah(gawangX,gawangTendang2,5):
-                    remDelay(1)
+                    rem()
                     tendang(0)
                     STEP_ROBOT = 99
                 else:
                     pasne(gawangX,gawangTendang2,5,14)
             else:
                 setMotor(20,-20,-20)
-                
+
+        elif STEP_ROBOT==99:
+            stop()
+            saveLast()       
             
         #!---------- PROGRAM ROBOT ENDS HERE ----------
 
@@ -558,7 +663,8 @@ def otomatis1():
                                        
 def otomatis2():
     print('UNIT Test : otomatis2')
-    global STEP_ROBOT,play,now,before,miss
+    global STEP_ROBOT,play,now,before,miss,lastL,lastR
+    saveLast()
     # * Variable Init
     is_ball_found = False
     is_gawang_found = False
@@ -567,9 +673,10 @@ def otomatis2():
     ballY = 0
     pas=0
     boloX=0
-    centerBoloOper1=328 #oper awal
+    centerBoloOper1=332 #oper awal
     centerNerimoOper1=311
     centerBoloOper2=327 #oper ape nge golne
+    
     # STEP_ROBOT=3.5
     # before=time.time()
     while play:
@@ -729,30 +836,30 @@ def otomatis2():
         #!---------- PROGRAM CAMERA GAWANG ENDS HERE ----------
 
         #!---------- PROGRAM ROBOT STARTS HERE ----------
-
-        turn_speed = 100
-        move_speed = 100
-        slow_mode = 30
         is_ball_catch = getIR() is True
 
         # * jalankan STEP_ROBOT 0        
         if STEP_ROBOT == 0:#SERONG KIRI
             print('STEP_ROBOT = 0')
-            
-            setMotor(-25, 80,-110)
-            time.sleep(1.9)
-
-            remDelay(0.2)          
-            STEP_ROBOT = 1
-      
+            # setMotor(-25, 85,-120)
+            print("ROOOO : ",type(getRotateR()))        
+            # breakpoint()
+            if getRotateR()<= (lastR-5):
+                remDelay(0.3)          
+                STEP_ROBOT = 1
+                before=time.time()
+                saveLast()
+            else:
+                setMotor(-25, 85,-120)      
         elif STEP_ROBOT == 1:#NGUBER BALL
             print('STEP_ROBOT = 1')
             move_left, move_right = pid(ballX, centerX, last_error)
             if is_ball_found:
-                if jarak_ball > 135:
+                setMotor(move_left, move_right)
+                """if jarak_ball > 110:
                     setMotor(move_left, move_right)
                 else:
-                    setMotor(move_left/1.4,move_right/1.4)
+                    setMotor(move_left/1.2,move_right/1.2)"""
             else:
                 stop()
             
@@ -765,7 +872,7 @@ def otomatis2():
             now=time.time()
             if is_bolo_found:
                 if now-before>=2.5:
-                    if pasTengah(boloX,centerBoloOper1,3):
+                    if pasTengah(boloX,centerBoloOper1,2):
                         rem()
                         time.sleep(0.5)
                         tendang()
@@ -814,6 +921,7 @@ def otomatis2():
         elif STEP_ROBOT == 99:
             print('STEP_ROBOT = 99')
             stop()   
+            saveLast()
         #!---------- PROGRAM ROBOT ENDS HERE ----------
 
         # * show the frame to our screen

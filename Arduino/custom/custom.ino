@@ -93,15 +93,17 @@ void loop() {
   go.rotationR=getPutaran(pulseR);
   go.vpulseL=pulseL;
   go.vpulseR=pulseR; 
-  
-  now=millis();
-  if(now-before>=15L){
+  updateLCD();
+  Serial.write((byte*)&go,sizeof(go));
+  delay(25);  
+  /*now=millis();
+  if(now-before>=25L){
       Serial.write((byte*)&go,sizeof(go));
     }
   if(now-before>=50L){
     updateLCD();  
     before=millis();  
-  }
+  }*/
 //    Serial.println(go.kompas);
 //    Serial.println(go.rotationL);
 //    Serial.println(go.rotationR);
@@ -113,7 +115,7 @@ void loop() {
 //  Serial.println("TEST");
 //  int angle = getKompas();
 //  Serial.println(angle);
-  delay(15);
+//  delay(5);
 }
 void updateLCD(){
   int rotateL=getPutaran(pulseL);

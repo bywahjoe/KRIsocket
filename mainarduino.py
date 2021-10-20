@@ -4,7 +4,7 @@ import os
 import threading
 from ardupin import *
 from configku import *
-from megaserial import *
+# from megaserial import *
 
 board = pyfirmata.ArduinoMega(ARDUINO_COM_PORT)
 #board = pyfirmata.Arduino('COM3')
@@ -255,7 +255,7 @@ def getKompasDeprecated(index=0):
 			return BASE_MARKAS
 			break;
 		batasError=batasError+1			
-def lockTarget(setRange=ERROR_RATE,position=BASE_MUSUH):
+"""def lockTarget(setRange=ERROR_RATE,position=BASE_MUSUH):
 	try:
 		myKompas=getKompas()
 	except Exception as e:
@@ -271,6 +271,7 @@ def lockTarget(setRange=ERROR_RATE,position=BASE_MUSUH):
 		rangeKompas=myKompas>=NEW_BASE_MUSUH_MIN and myKompas<=NEW_BASE_MUSUH_MAX
 		print('STATUS\t\t: ',rangeKompas,'\nRANGE_RATE\t: ',setRange,'\nBASE_MUSUH_MIN\t: ',NEW_BASE_MUSUH_MIN,'\nKOMPAS_VALUE\t: ',myKompas,'\nBASE_MUSUH_MAX\t: ',NEW_BASE_MUSUH_MAX)
 		return rangeKompas
+
 def destroyTarget(setRange=ERROR_RATE,position=BASE_MUSUH):
 	if(lockTarget(setRange,position)):
 		stop()
@@ -284,6 +285,7 @@ def startSerialKompas():
 def openKompas():
 	threadKompas = threading.Thread(target=startSerialKompas,daemon=True)
 	threadKompas.start()
+"""
 #openKompas()
 def resetRobot():
 	stop()
@@ -373,4 +375,11 @@ while True:
 	rem()
 	time.sleep(2)"""
 
-a,b,c,d,e=getSerial()
+# while True:
+# 	a,b,c,d,e=getSerial()
+# time.sleep(1)
+# setMotor(-25,105,-200)
+# time.sleep(1.2)
+# remDelay(1)
+
+

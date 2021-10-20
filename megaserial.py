@@ -5,6 +5,7 @@ import threading
 
 
 ser = serial.Serial(PYSERIAL_COM,baudrate=BAUDRATE)
+# ser.reset_output_buffer()
 
 # ok=b'\x05\x00\x00\x00\x07\x00\x00\x00'
 # print(unpack('ii',ok))
@@ -14,6 +15,7 @@ def readSerial():
     global myKompas,rotateL,rotateR,pulseL,pulseR
     while True:
         recv=ser.read(20)
+        # recv=ser.readline()
         # ok=len(recv)
         print(repr(recv))
         # print(len(recv),' bytes')
@@ -35,7 +37,7 @@ def readSerial():
             # print(mykompas)
 
 #THREAD TEST!!
-x = threading.Thread(target=readSerial, daemon=True)
+x = threading.Thread(target=readSerial)
 x.start()
 
 def getKompas():
