@@ -92,8 +92,8 @@ while True:
 				get_manual(terima)
 			elif terima=='wahyu':
 				kirim('Masuk')
-			elif terima=='stops':
-				oeee=''
+			elif terima=='myKompas':
+				kirim('LastKompas: 0')
 				#stop()
 			elif terima=='selenoid':
 				ok=''

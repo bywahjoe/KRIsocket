@@ -20,7 +20,7 @@ def readSerial():
         print(repr(recv))
         # print(len(recv),' bytes')
         if(len(recv)>4):
-            unpacked = unpack('iiill', recv)
+            unpacked = unpack('iffll', recv)
             print(unpacked)
             myKompas,rotateL,rotateR,pulseL,pulseR=unpacked
             # myKompas=unpacked[0]

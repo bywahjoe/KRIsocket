@@ -7,6 +7,7 @@ import queue
 import os
 import tkinter.scrolledtext as listt
 import keyboard
+import csv
 #import tkinter as tk
 from perintah import *
 from tkinter import *
@@ -64,6 +65,22 @@ print(f"+IP      :{ip_address}")
 print("+HOST    -    PORT")
 print(JARINGAN)
 
+def createCSV(param):
+	with open(f"gui_tes.csv", "a", newline="") as f:
+	    writer = csv.writer(f)
+	    writer.writerow(param)
+def logData(mode,msg):
+	timestamp=str(getTime())
+	unix=str(time.time())
+	print('+--------------------+')
+	print('Mode     : ',mode)
+	print('Timestamp: ',timestamp)
+	print('UNIX Time: ',unix)
+	print('Message  : ',msg)
+	print('Client   : ',JARINGAN)
+	
+	createCSV([mode,msg,unix,timestamp])
+
 def fail(pesan_error):
 	viewerror.showerror(title='!ERROR', message=pesan_error)
 def notice(pesan_error):
@@ -95,6 +112,7 @@ def addToTerminal(myClientID,inputPesan):
 		notice(pesanTerminal)
 	print(pesanTerminal)
 def sendToClient(myClientID,replace_pesan):
+	logData(ip_client[myClientID],replace_pesan)
 	conn_client[myClientID].send(bytes(replace_pesan,ENCODING))
 def oky():
 	while True:
@@ -127,12 +145,14 @@ def streamKeyboard():
 	threadk = threading.Thread(target=oky,daemon=True)
 	threadk.start()
 	
-
 def ping_client():
-	isi_pesan='PING'
+	isi_pesan='ping'
 	try:
+		a=0
 		for toall in conn_client:
+			logData(ip_client[a],isi_pesan)
 			toall.send(bytes(isi_pesan,ENCODING))
+			a=a+1
 		notice('ALL CLIENT CONNECTED')
 	except socket.error as e:
 		text_error=str(e)+'\n ***CONECTION LOSS '
@@ -154,12 +174,14 @@ def multi_client(conn,address,myid):
 	if  conn:
 		#print(f"CLIENT_ID: {myid} | {address}")
 		pesan_pertama=pesan+str(myid)
+		logData(myid,pesan_pertama)
 		conn.send(bytes(pesan_pertama,ENCODING))
 		#sendToClient(,pesan_pertama)
 	while True:
 		try:
 			data = conn.recv(SIZE).decode(ENCODING)
 			if data:
+				logData('RECVC'+str(myid),data)
 				addToTerminal(myid,data)
 				print(f"C:{data} | {address}")
 				if data.startswith(FORWARDING_HEADER) and len(data)>4:
@@ -191,8 +213,11 @@ def multi_send(pesan):
 		print('SEND_TO_CLIENT:',index_client,': ',replace_pesan)
 		#print(index_client)
 		if index_client==mySendDefaultID:
+			a=0
 			for toall in conn_client:
+				logData(ip_client[a],replace_pesan)
 				toall.send(bytes(replace_pesan,ENCODING))
+				a=a+1
 			index_client=4
 		else:
 			myClientID=index_client
@@ -388,15 +413,15 @@ b15.grid(row=3,column=12,sticky='EW',padx=3,pady=3)
 trpn2=Label(window,text='TEST STATION',font='Helvetica 10 bold',bg='#f7bb00')
 trpn2.grid(row=4,column=7,sticky='EW',columnspan=6,pady=7)
 bxp1=Button(window,text='PING',command=ping_client,width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp2=Button(window,text='GET_IR',command=lambda: multi_send('TST2'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp3=Button(window,text='MOTOR',command=lambda: multi_send('TST3'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp4=Button(window,text='SELENOID',command=lambda: multi_send('TST4'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp5=Button(window,text='KOMPAS',command=lambda: multi_send('TST5'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp6=Button(window,text='TESTRECV',command=lambda: multi_send('TST6'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp7=Button(window,text='MYBALL',command=lambda: multi_send('TST7'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp8=Button(window,text='TESTRECV',command=lambda: multi_send('TST8'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
-bxp9=Button(window,text='TESTRECV',command=lambda: multi_send('TST9'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
-bxp10=Button(window,text='TESTRECV',command=lambda: multi_send('TST10'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp2=Button(window,text='DRIBLE X',command=lambda: multi_send('TST2'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp3=Button(window,text='SELENOID',command=lambda: multi_send('TST3'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp4=Button(window,text='S-HIGH',command=lambda: multi_send('TST4'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp5=Button(window,text='S-LOW',command=lambda: multi_send('TST5'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp6=Button(window,text='MOTOR +',command=lambda: multi_send('TST6'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp7=Button(window,text='MOTOR -',command=lambda: multi_send('TST7'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp8=Button(window,text='GET-IR',command=lambda: multi_send('TST8'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
+bxp9=Button(window,text='KOMPAS',command=lambda: multi_send('TST9'),width=10,height=2,bg='green',font='Arial 10 bold',fg='white')
+bxp10=Button(window,text='ENCODER',command=lambda: multi_send('TST10'),width=10,height=2,bg='red',font='Arial 10 bold',fg='white')
 
 bxp1.grid(row=5,column=8,sticky='EW',padx=3,pady=3)
 bxp2.grid(row=5,column=9,sticky='EW',padx=3,pady=3)
