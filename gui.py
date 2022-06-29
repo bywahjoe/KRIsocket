@@ -67,8 +67,8 @@ print(JARINGAN)
 
 def createCSV(param):
 	with open(f"gui_tes.csv", "a", newline="") as f:
-	    writer = csv.writer(f)
-	    writer.writerow(param)
+		writer = csv.writer(f)
+		writer.writerow(param)
 def logData(mode,msg):
 	timestamp=str(getTime())
 	unix=str(time.time())
@@ -390,8 +390,8 @@ b10=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,heig
 b11=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
 b12=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
 b13=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
-b14=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
-b15=Button(window,text='TESTRECV',command=lambda: multi_send('C3'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
+b14=Button(window,text='KICKOFF',command=lambda: multi_send('C10'),width=10,height=2,bg='#1D9DCE',font='Arial 10 bold',fg='white')
+b15=Button(window,text='KICKPOS',command=lambda: multi_send('C11'),width=10,height=2,bg='#1BBC9B',font='Arial 10 bold')
 
 b1.grid(row=1,column=8,sticky='EW',padx=3,pady=3)
 b2.grid(row=1,column=9,sticky='EW',padx=3,pady=3)
